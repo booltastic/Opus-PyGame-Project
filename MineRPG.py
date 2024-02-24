@@ -209,7 +209,7 @@ def set_stage_icon_rects():
     else: minersguild_rect = None
 
     if state == 'MINERSGUILD':
-        minersguild_str_up_rect = pygame.Rect((WINDOW_WIDTH-450,WINDOW_HEIGHT-300),(90,90)) #location, size
+        minersguild_str_up_rect = pygame.Rect((WINDOW_WIDTH-450,WINDOW_HEIGHT-300),(120,120)) #location, size
     else: minersguild_str_up_rect = None
 
     return icon_rect, minersguild_rect, minersguild_str_up_rect
