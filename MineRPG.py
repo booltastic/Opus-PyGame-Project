@@ -12,6 +12,7 @@ screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Practice Clicker Game")
 clock = pygame.time.Clock()
 FPS = 30
+texttimer = 0
 counter = 0 #play time
 
 #Set Colors
@@ -70,22 +71,17 @@ def draw_next_button():
     screen.blit(nextbuttonstring, newtextspot) #draw next text
     return nextbuttontext_rect
 
-homepath=r'C:\Users\Kyle\Pictures\PyGame Assets'
-workpath=r'C:\Users\kcwalina\Documents\PyGameLocalAssets'
-laptop=r'C:\Users\kcwalina\Documents\PyGame-Project'
-path=laptop
-
 #Background Images
-quainttownimage = pygame.image.load(path+r'\QuaintTownSquare.png')
-level1minesceneimage = pygame.image.load(path+r'\RockyMineLevel1.png')
-minersguildimage = pygame.image.load(path+r'\MinersGuildInterior.png')
+quainttownimage = pygame.image.load('QuaintTownSquare.png')
+level1minesceneimage = pygame.image.load('RockyMineLevel1.png')
+minersguildimage = pygame.image.load('MinersGuildInterior.png')
 
 #Icon Images
-towniconimage = pygame.image.load(path+r'\TownIcon.png')
-level1minesceneimageicon = pygame.image.load(path+r'\RockyMineLevel1.png')
-glowingrockiconimage = pygame.image.load(path+r'\GlowingRockIcon.png')
-minersguildiconimage = pygame.image.load(path+r'\MinersGuildLogo.png')
-strength_up_icon = pygame.image.load(path+r'\StrengthUpImage.png')
+towniconimage = pygame.image.load('TownIcon.png')
+level1minesceneimageicon = pygame.image.load('RockyMineLevel1.png')
+glowingrockiconimage = pygame.image.load('GlowingRockIcon.png')
+minersguildiconimage = pygame.image.load('MinersGuildLogo.png')
+strength_up_icon = pygame.image.load('StrengthUpImage.png')
 
 # Drawing scene backgrounds
 def draw_background(locationimage):
@@ -189,15 +185,13 @@ def draw_miners_guild():
         draw_background(minersguildimage)
         draw_shardicon()
         draw_screen_icons(towniconimage)
-        #draw_location_icon(towniconimage)
         draw_text_box(minerswelcome[0], 30, Text_Location_Center)
         draw_text_box(minerswelcome[1], 30, (400,500))
-        #draw_location_icon(towniconimage)
         if str_up == 1:
             draw_text_box(str_upgrade_text[0], 30, (400, 250))
+
         if str_up == 2:
             draw_text_box(str_upgrade_text[1], 30, (400, 250))
-
 
 # Stage Icon Rect.
 def set_stage_icon_rects():
