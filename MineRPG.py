@@ -12,8 +12,9 @@ screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Practice Clicker Game")
 clock = pygame.time.Clock()
 FPS = 30
-texttimer = 0
+timecounter = 0
 counter = 0 #play time
+timer = 0
 
 #Set Colors
 CLEAR = (0,0,0,0)
@@ -33,11 +34,13 @@ introtext_rect = introstring.get_rect(
     center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))  # gets rect of the text shape, placed centered at a location
 state = 'INTRO'
 promptnumber = -1
-shard = 50
+shard = 0
 sshard = 0
 mouseclick = 0
 minerstr = 1
 str_up = 0
+workers = 0
+worker_hired = 0
 
 #Player Inventory
 player_inventory = []
@@ -47,7 +50,8 @@ nextbuttontext = 'Next'
 tuttext = ['Welcome to the Mines of Esswun!','Click the icon to mine, and gain rocks', 'Your loot is shown here',
            'and when your work is done, ', 'return to town here!']
 minerswelcome = ['Welcome to the Miner\'s Guild!','Spend your shards to upgrade your mining skill']
-str_upgrade_text = ['Click power +1!', 'Not enough shards!']
+str_upgrade_text = ['Click power +1!', 'Not enough shards! (Costs 50)']
+worker_hired_text = ['Worker speed increase!','Not enough Special Shards! (Costs 5)']
 
 #Pre-Determined Locations For Repeat Items
 Text_Location_Center = (WINDOW_WIDTH/2,WINDOW_HEIGHT-150)
@@ -82,6 +86,11 @@ level1minesceneimageicon = pygame.image.load('RockyMineLevel1.png')
 glowingrockiconimage = pygame.image.load('GlowingRockIcon.png')
 minersguildiconimage = pygame.image.load('MinersGuildLogo.png')
 strength_up_icon = pygame.image.load('StrengthUpImage.png')
+hire_worker_icon = pygame.image.load('HireWorkerIcon.png')
+
+def game_timer(counter):
+    counter += 1
+    return counter
 
 # Drawing scene backgrounds
 def draw_background(locationimage):
@@ -104,9 +113,14 @@ def draw_screen_icons(locationiconimage):
         screen.blit(townlocation_icon_image, set_stage_icon_rects()[1])
         draw_location_icon(locationiconimage)
     if state == 'MINERSGUILD':
-        minerslocation_icon_image = pygame.transform.scale(strength_up_icon, (120, 120))
-        screen.blit(minerslocation_icon_image, set_stage_icon_rects()[2])
+        strength_up_icon_image = pygame.transform.scale(strength_up_icon, (120, 120))
+        screen.blit(strength_up_icon_image, set_stage_icon_rects()[2])
+
+        hire_worker_icon_image = pygame.transform.scale(hire_worker_icon, (120, 120))
+        screen.blit(hire_worker_icon_image, set_stage_icon_rects()[3])
+
         draw_location_icon(locationiconimage)
+
     else:pass
 
 
@@ -117,16 +131,24 @@ def draw_intro():
 
 #Make shard
 def make_click_shard(shard,sshard):
-    shard+=minerstr
+    shard+=(minerstr/2)
     sshard_chance = random.randint(1,100)
-    if sshard_chance == 99:
+    if sshard_chance >= (100-minerstr):
         sshard += 1
+    return shard, sshard
+
+def auto_miners(shard,sshard,workers):
+    if workers >= 1:
+        shard += workers/30
+        sshard_chance = random.randint(1, 3000)
+        if sshard_chance >= (3000-(workers)):
+            sshard += 1
     return shard, sshard
 
 def draw_shardicon():
     #Shards
     shard_font = pygame.font.Font(None, 30)
-    shard_string = 'Shards: '+ str(shard)
+    shard_string = 'Shards: '+ str(int(shard))
     shard_text = shard_font.render(shard_string, True, WHITE)
     shardrect = shard_text.get_rect(center=(60,550))
     screen.blit(shard_text,shardrect)
@@ -180,7 +202,7 @@ def draw_town():
         draw_screen_icons(level1minesceneimageicon)
         #draw_location_icon(level1minesceneimageicon)
 
-def draw_miners_guild():
+def draw_miners_guild(str_up,counter,timer, worker_hired):
     if state == 'MINERSGUILD':
         draw_background(minersguildimage)
         draw_shardicon()
@@ -189,9 +211,26 @@ def draw_miners_guild():
         draw_text_box(minerswelcome[1], 30, (400,500))
         if str_up == 1:
             draw_text_box(str_upgrade_text[0], 30, (400, 250))
+            timer += 1
+            if timer >= 90:
+                str_up, timer = 0, 0
 
-        if str_up == 2:
+        elif str_up == 2:
             draw_text_box(str_upgrade_text[1], 30, (400, 250))
+            timer += 1
+            if timer >= 90:
+                str_up, timer = 0, 0
+        elif worker_hired == 1:
+            draw_text_box(worker_hired_text[0], 30, (400, 250))
+            timer += 1
+            if timer >= 90:
+                worker_hired, timer = 0, 0
+        elif worker_hired == 2:
+            draw_text_box(worker_hired_text[1], 30, (400, 250))
+            timer += 1
+            if timer >= 90:
+                worker_hired, timer = 0, 0
+    return str_up, counter, timer, worker_hired
 
 # Stage Icon Rect.
 def set_stage_icon_rects():
@@ -204,16 +243,19 @@ def set_stage_icon_rects():
 
     if state == 'MINERSGUILD':
         minersguild_str_up_rect = pygame.Rect((WINDOW_WIDTH-450,WINDOW_HEIGHT-300),(120,120)) #location, size
-    else: minersguild_str_up_rect = None
+        hire_worker_icon_rect = pygame.Rect((WINDOW_WIDTH-250,WINDOW_HEIGHT-300),(120,120)) #location, size
+    else: minersguild_str_up_rect, hire_worker_icon_rect = None, None
 
-    return icon_rect, minersguild_rect, minersguild_str_up_rect
+    return icon_rect, minersguild_rect, minersguild_str_up_rect, hire_worker_icon_rect
 
 # Game loop
 running = True
 while running:
     # Event handling
-    clock.tick(FPS)
-    counter += 1 #total frame number
+    counter = game_timer(counter) #total frame number
+    #print(counter)
+    stage_rects = set_stage_icon_rects()
+    #print(stage_rects[3])
     for event in pygame.event.get():
         if event.type == pygame.QUIT: #should be the only IF, so the game will always close first. i think
             running = False
@@ -227,23 +269,34 @@ while running:
                     state = 'CAVELEVEL1'
             elif draw_mainclicktarget().collidepoint(event.pos) and (state == 'TUTORIAL' or state == 'CAVELEVEL1'):
                 shard, sshard = make_click_shard(shard,sshard)
-            elif set_stage_icon_rects()[0].collidepoint(event.pos):
+            elif stage_rects[0].collidepoint(event.pos):
                 if state == 'CAVELEVEL1' or state == 'MINERSGUILD':
                     state = 'TOWN'
                     #print('caught')
                 elif state == 'TOWN':
                     state = 'CAVELEVEL1'
-            elif set_stage_icon_rects()[1] is not None:
-                if set_stage_icon_rects()[1].collidepoint(event.pos) and state == 'TOWN':
+            elif stage_rects[1] is not None:
+                if stage_rects[1].collidepoint(event.pos) and state == 'TOWN':
                     state = 'MINERSGUILD'
-            elif set_stage_icon_rects()[2] is not None:
-                if set_stage_icon_rects()[2].collidepoint(event.pos) and state == 'MINERSGUILD':
+            elif stage_rects[2] is not None:
+                if stage_rects[2].collidepoint(event.pos) and state == 'MINERSGUILD':
                     if shard >= 50:
                         shard -= 50
                         minerstr += 1
                         str_up = 1 # (1 for yes, generate success text)
                     else:
                         str_up = 2 # (2 for no)
+            if stage_rects[3] is not None: #elif only runs where everything preceding it (until first if) is False
+                if stage_rects[3].collidepoint(event.pos) and state == 'MINERSGUILD':
+                    if sshard >= 5:
+                        sshard -= 5
+                        worker_hired = 1
+                        workers += 1
+                    else:
+                        worker_hired = 2
+
+            #print(workers)
+
 
     # Clear the screen
     screen.fill(CLEAR) # Passively fills all blank space. Catch-all just in case
@@ -252,11 +305,12 @@ while running:
     draw_tutorial()
     draw_cavelevel1()
     draw_town()
-    draw_miners_guild()
-    #draw_screen_icons()
-
+    str_up, counter, timer, worker_hired = draw_miners_guild(str_up,counter,timer, worker_hired)
+    shard,sshard=auto_miners(shard,sshard,workers)
+    #print(worker_hired)
     # Update the display
     pygame.display.flip()
+    clock.tick(FPS)
 
 # Quit Pygame
 pygame.quit()
