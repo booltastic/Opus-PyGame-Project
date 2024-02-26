@@ -34,13 +34,21 @@ introtext_rect = introstring.get_rect(
     center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))  # gets rect of the text shape, placed centered at a location
 state = 'INTRO'
 promptnumber = -1
-shard = 0
-sshard = 0
+shard = 650
+sshard = 50
 mouseclick = 0
 minerstr = 1
 str_up = 0
 workers = 0
 worker_hired = 0
+
+def get_cost():
+    minerstrcost = 50+(minerstr*25)
+    workercost= 5+(workers*2)
+    str_upgrade_text = ['Click power +1!', 'Not enough shards! (Costs ' + str(minerstrcost) + ')']
+    worker_hired_text = ['Worker speed increased!', 'Not enough Special Shards! (Costs ' + str(workercost) + ')']
+    return minerstrcost, workercost,str_upgrade_text,worker_hired_text
+costs_and_texts=get_cost()
 
 #Player Inventory
 player_inventory = []
@@ -50,8 +58,7 @@ nextbuttontext = 'Next'
 tuttext = ['Welcome to the Mines of Esswun!','Click the icon to mine, and gain rocks', 'Your loot is shown here',
            'and when your work is done, ', 'return to town here!']
 minerswelcome = ['Welcome to the Miner\'s Guild!','Spend your shards to upgrade your mining skill']
-str_upgrade_text = ['Click power +1!', 'Not enough shards! (Costs 50)']
-worker_hired_text = ['Worker speed increase!','Not enough Special Shards! (Costs 5)']
+
 
 #Pre-Determined Locations For Repeat Items
 Text_Location_Center = (WINDOW_WIDTH/2,WINDOW_HEIGHT-150)
@@ -120,7 +127,6 @@ def draw_screen_icons(locationiconimage):
         screen.blit(hire_worker_icon_image, set_stage_icon_rects()[3])
 
         draw_location_icon(locationiconimage)
-
     else:pass
 
 
@@ -209,25 +215,29 @@ def draw_miners_guild(str_up,counter,timer, worker_hired):
         draw_screen_icons(towniconimage)
         draw_text_box(minerswelcome[0], 30, Text_Location_Center)
         draw_text_box(minerswelcome[1], 30, (400,500))
+        costs_and_texts = get_cost()
         if str_up == 1:
-            draw_text_box(str_upgrade_text[0], 30, (400, 250))
+            draw_text_box(costs_and_texts[2][0], 30, (400, 250))
             timer += 1
+            worker_hired=0
             if timer >= 90:
                 str_up, timer = 0, 0
-
         elif str_up == 2:
-            draw_text_box(str_upgrade_text[1], 30, (400, 250))
+            draw_text_box(costs_and_texts[2][1], 30, (400, 250))
             timer += 1
+            worker_hired = 0
             if timer >= 90:
                 str_up, timer = 0, 0
-        elif worker_hired == 1:
-            draw_text_box(worker_hired_text[0], 30, (400, 250))
+        if worker_hired == 1:
+            draw_text_box(costs_and_texts[3][0], 30, (400, 250))
             timer += 1
+            str_up=0
             if timer >= 90:
                 worker_hired, timer = 0, 0
         elif worker_hired == 2:
-            draw_text_box(worker_hired_text[1], 30, (400, 250))
+            draw_text_box(costs_and_texts[3][1], 30, (400, 250))
             timer += 1
+            str_up = 0
             if timer >= 90:
                 worker_hired, timer = 0, 0
     return str_up, counter, timer, worker_hired
@@ -280,16 +290,16 @@ while running:
                     state = 'MINERSGUILD'
             elif stage_rects[2] is not None:
                 if stage_rects[2].collidepoint(event.pos) and state == 'MINERSGUILD':
-                    if shard >= 50:
-                        shard -= 50
+                    if shard >= get_cost()[0]:
+                        shard -= get_cost()[0]
                         minerstr += 1
                         str_up = 1 # (1 for yes, generate success text)
                     else:
                         str_up = 2 # (2 for no)
             if stage_rects[3] is not None: #elif only runs where everything preceding it (until first if) is False
                 if stage_rects[3].collidepoint(event.pos) and state == 'MINERSGUILD':
-                    if sshard >= 5:
-                        sshard -= 5
+                    if sshard >= get_cost()[1]:
+                        sshard -= get_cost()[1]
                         worker_hired = 1
                         workers += 1
                     else:
