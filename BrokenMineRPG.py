@@ -171,111 +171,130 @@ def draw_mainclicktarget():
     screen.blit(glowingrockicon, glowingrockicon_rect)
     return glowingrockicon_rect
 
-def get_text_box(drawntext,fontsize,textlocation,color):
+def get_text_box(drawntext,fontsize,textlocation,color): #made for rects loops
     boxtext = drawntext
     boxtextfont = pygame.font.Font(None,fontsize)
     renderedtext = boxtextfont.render(str(boxtext),True,WHITE) #renders text image
     colliderect = renderedtext.get_rect(center=textlocation) # create rect the size of the text at chosen location. sets ratio of size, and where we want the center
-    colliderect.inflate_ip(colliderect.width,colliderect.height) # inflate that rect in place to twice its size
-    textbackgroundrect = pygame.draw.rect(screen, color, colliderect) # draws the rect renderedrect, which is also what we want clickable/collide accessible
+    colliderect.inflate_ip(colliderect.width,colliderect.height) # inflate that rect in place to twice its size, this is what gets clicked
+    textbackgroundrect = pygame.draw.rect(screen, color, colliderect) # draws the rect renderedrect, this cannot be passed to collidepoint though (just drawing it)
     renderedtextrect = renderedtext.get_rect(center = colliderect.center) # this rect is creating a text sized rect and placing it at the center of the big rect, so its already centered. used for collide and blit. if blit
 
-    return renderedtext, renderedtextrect, colliderect, textbackgroundrect #Rect to click. For location, will just do .center
+    return renderedtext, renderedtextrect, colliderect, textbackgroundrect #text, textrect, colliderect, textbackgroundrect
 
 ### SCENES
-def draw_intro():
-    if state == 'INTRO':
-        #drawbackground
-        set_intro_rects = intro_rects()
-        screen.blit(introstring, introtext_rect)  # blits the rendered text onto the rectangle that is at a location
-        pygame.draw.rect(screen, RED, set_intro_rects[0][2])
-        screen.blit(set_intro_rects[0][0], set_intro_rects[0][3]) #new game
-        pygame.draw.rect(screen, RED, set_intro_rects[1][2])
-        screen.blit(set_intro_rects[1][0], set_intro_rects[1][3]) #load game
-        pygame.draw.rect(screen, RED, set_intro_rects[2][2])
-        screen.blit(set_intro_rects[2][0], set_intro_rects[2][3])  #ask text
+def draw_scene(sceneinput):
+    rects=draw_rects(sceneinput)
+    blit_images(sceneinput) #state
+    return rects
+
+def draw_rects(sceneinput2):
+    if sceneinput2 == 'INTRO':
+        return intro_rects()
+    if sceneinput2 == 'TUTORIAL':
+        return tutorial_rects()
+
+def blit_images(sceneinput2):
+    rects=draw_rects(sceneinput2)
+    if sceneinput2 == 'INTRO':
+        draw_intro(rects)
+    if sceneinput2 == 'TUTORIAL':
+        draw_tutorial()
 
 def intro_rects():
-    new_game_prompt_rect = get_text_box(newgametext[0],40,(WINDOW_WIDTH-400,WINDOW_HEIGHT-300), RED)
-    new_game_rect = get_text_box(newgametext[1],40, (WINDOW_WIDTH-600,WINDOW_HEIGHT-200), RED)
-    load_game_rect = get_text_box(newgametext[2],40, (WINDOW_WIDTH-250,WINDOW_HEIGHT-200), RED)
-    return new_game_prompt_rect, new_game_rect, load_game_rect
+    rects={}
+    rects['new_game_prompt_rect'] = get_text_box(newgametext[0],40,(WINDOW_WIDTH-400,WINDOW_HEIGHT-300), RED)
+    rects['new_game_rect'] = get_text_box(newgametext[1],40, (WINDOW_WIDTH-600,WINDOW_HEIGHT-200), RED)
+    rects['load_game_rect'] = get_text_box(newgametext[2],40, (WINDOW_WIDTH-250,WINDOW_HEIGHT-200), RED)
+    return rects
+def draw_intro(rects):
+    screen.blit(introstring, introtext_rect)  # blits the rendered text onto the rectangle that is at a location
+    screen.blit(rects['new_game_rect'][0],rects['new_game_rect'][1]) #new game #text, textrect, colliderect, textbackgroundrect
+    screen.blit(rects['load_game_rect'][0],rects['load_game_rect'][1]) #load game
+    screen.blit(rects['new_game_prompt_rect'][0],rects['new_game_prompt_rect'][1])  #ask text
+
+def tutorial_rects():
+    rects={}
+    #rects['next_button']=draw_next_button()
+    rects['screenbackground']=draw_background(level1minesceneimage)
+    rects['returnicon'] = pygame.transform.scale(towniconimage, (90, 90))
+
+    if promptnumber < len(tuttext):
+        get_text_box(tuttext[promptnumber],35,tuttext_locations[promptnumber], RED)
+    return rects
 
 def draw_tutorial():
     if state == 'TUTORIAL':
         draw_background(level1minesceneimage)
-
         draw_next_button()
         draw_shardicon()
         draw_screen_icons(towniconimage)
         draw_mainclicktarget()
 
-def draw_cavelevel1():
-    if state == 'CAVELEVEL1':
-        draw_background(level1minesceneimage)
-        draw_shardicon()
-        draw_mainclicktarget()
-        draw_screen_icons(towniconimage)
+# def draw_cavelevel1():
+#     if state == 'CAVELEVEL1':
+#         draw_background(level1minesceneimage)
+#         draw_shardicon()
+#         draw_mainclicktarget()
+#         draw_screen_icons(towniconimage)
+#
+# def draw_town():
+#     if state == 'TOWN':
+#         draw_background(quainttownimage)
+#         draw_shardicon()
+#         draw_screen_icons(level1minesceneimageicon)
+#
+# def draw_miners_guild(str_up,counter,timer, worker_hired):
+#     if state == 'MINERSGUILD':
+#         draw_background(minersguildimage)
+#         draw_shardicon()
+#         draw_screen_icons(towniconimage)
+#
+#         costs_and_texts = get_cost()
+#
+#         if str_up == 1:
+#             draw_text_box(costs_and_texts[2][0], 30, (400, 250),RED)
+#             timer += 1
+#             worker_hired=0
+#             if timer >= 90:
+#                 str_up, timer = 0, 0
+#         elif str_up == 2:
+#             draw_text_box(costs_and_texts[2][1], 30, (400, 250),RED)
+#             timer += 1
+#             if timer >= 90:
+#                 str_up, timer = 0, 0
+#         if worker_hired == 1:
+#             draw_text_box(costs_and_texts[3][0], 30, (400, 250),RED)
+#             timer += 1
+#             str_up = 0
+#             if timer >= 90:
+#                 worker_hired, timer = 0, 0
+#         elif worker_hired == 2:
+#             draw_text_box(costs_and_texts[3][1], 30, (400, 250),RED)
+#             timer += 1
+#             str_up = 0
+#             if timer >= 90:
+#                 worker_hired, timer = 0, 0
+#     return str_up, counter, timer, worker_hired
 
-def draw_town():
-    if state == 'TOWN':
-        draw_background(quainttownimage)
-        draw_shardicon()
-        draw_screen_icons(level1minesceneimageicon)
 
-def draw_miners_guild(str_up,counter,timer, worker_hired):
-    if state == 'MINERSGUILD':
-        draw_background(minersguildimage)
-        draw_shardicon()
-        draw_screen_icons(towniconimage)
-
-        costs_and_texts = get_cost()
-
-        if str_up == 1:
-            draw_text_box(costs_and_texts[2][0], 30, (400, 250),RED)
-            timer += 1
-            worker_hired=0
-            if timer >= 90:
-                str_up, timer = 0, 0
-        elif str_up == 2:
-            draw_text_box(costs_and_texts[2][1], 30, (400, 250),RED)
-            timer += 1
-            if timer >= 90:
-                str_up, timer = 0, 0
-        if worker_hired == 1:
-            draw_text_box(costs_and_texts[3][0], 30, (400, 250),RED)
-            timer += 1
-            str_up = 0
-            if timer >= 90:
-                worker_hired, timer = 0, 0
-        elif worker_hired == 2:
-            draw_text_box(costs_and_texts[3][1], 30, (400, 250),RED)
-            timer += 1
-            str_up = 0
-            if timer >= 90:
-                worker_hired, timer = 0, 0
-    return str_up, counter, timer, worker_hired
-
-
-def tutorial_rects():
-    if state == 'TUTORIAL':
-        next_button=draw_next_button()
-        if promptnumber < len(tuttext):
-            get_text_box(tuttext[promptnumber],35,tuttext_locations[promptnumber], RED)
-    else: next_button = None
-    return next_button
-
-def town_rects():
-    if state == 'TOWN':
-        minersguild_rect = pygame.Rect((WINDOW_WIDTH-300,WINDOW_HEIGHT-300),(90,90)) #location, size
-        return minersguild_rect
-
-def miners_guild_rects():
-    get_text_box(minerswelcome[0], 30, Text_Location_Center, RED)
-    get_text_box(minerswelcome[1], 30, (400, 500), RED)
-    minersguild_str_up_rect = pygame.Rect((WINDOW_WIDTH - 450, WINDOW_HEIGHT - 300), (120, 120))  # location, size
-    hire_worker_icon_rect = pygame.Rect((WINDOW_WIDTH - 250, WINDOW_HEIGHT - 300), (120, 120))  # location, size
-    return minersguild_str_up_rect, hire_worker_icon_rect
+# def tutorial_rects():
+#     next_button=draw_next_button()
+#     if promptnumber < len(tuttext):
+#         get_text_box(tuttext[promptnumber],35,tuttext_locations[promptnumber], RED)
+#     return next_button
+#
+# def town_rects():
+#     if state == 'TOWN':
+#         minersguild_rect = pygame.Rect((WINDOW_WIDTH-300,WINDOW_HEIGHT-300),(90,90)) #location, size
+#         return minersguild_rect
+#
+# def miners_guild_rects():
+#     get_text_box(minerswelcome[0], 30, Text_Location_Center, RED)
+#     get_text_box(minerswelcome[1], 30, (400, 500), RED)
+#     minersguild_str_up_rect = pygame.Rect((WINDOW_WIDTH - 450, WINDOW_HEIGHT - 300), (120, 120))  # location, size
+#     hire_worker_icon_rect = pygame.Rect((WINDOW_WIDTH - 250, WINDOW_HEIGHT - 300), (120, 120))  # location, size
+#     return minersguild_str_up_rect, hire_worker_icon_rect
 
 # Stage Icon Rect.
 def set_stage_icon_rects():
@@ -283,16 +302,11 @@ def set_stage_icon_rects():
     icon_rect = pygame.draw.rect(screen,CLEAR,icon_rect) #draw it. currently drawn off screen (beside background)
     return icon_rect
 
+rects=draw_scene('INTRO')
+
 # Game loop
 running = True
 while running:
-    # Clear the screen
-    screen.fill(CLEAR) # Passively fills all blank space. Catch-all just in case
-
-    # Event handling
-    stage_rects = set_stage_icon_rects()
-    counter = game_timer(counter) #total frame number
-    #next_button = draw_next_button()
     for event in pygame.event.get():
         if event.type == pygame.QUIT: #should be the only IF, so the game will always close first. i think
             with open('savestate.txt','w') as file:
@@ -301,11 +315,11 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             #mouse_pos = pygame.mouse.get_pos()
-            if stage_rects[5] is not None:
-                if stage_rects[5][2].collidepoint(event.pos) and state == 'INTRO':
-                    state = 'TUTORIAL'
-            elif stage_rects[6] is not None:
-                if stage_rects[6][2].collidepoint(event.pos) and state == 'INTRO':
+            #if rects['new_game_prompt_rect'] is not None:
+            if rects['new_game_prompt_rect'][2].collidepoint(event.pos) and state == 'INTRO':
+                state = 'TUTORIAL'
+            elif rects['load_game_rect'] is not None:
+                if rects['load_game_rect'][2].collidepoint(event.pos) and state == 'INTRO':
                     try:
                         with open('savestate.txt','r') as file:
                             content=file.read().split('(')[1]
@@ -317,50 +331,54 @@ while running:
                             state='TOWN'
                     except FileNotFoundError:
                         pass
-            elif stage_rects[7] is not None:
+            elif rects[''] is not None:
                 if stage_rects[7].collidepoint(event.pos) and state == 'TUTORIAL':
                     promptnumber += 1
                     if promptnumber >= len(tuttext) and state == 'TUTORIAL':
                         state = 'CAVELEVEL1'
-            elif draw_mainclicktarget().collidepoint(event.pos) and (state == 'TUTORIAL' or state == 'CAVELEVEL1'):
-                shard, sshard = make_click_shard(shard,sshard)
-
-            if stage_rects[0].collidepoint(event.pos):
-                if state == 'CAVELEVEL1' or state == 'MINERSGUILD':
-                    state = 'TOWN'
-                elif state == 'TOWN':
-                    state = 'CAVELEVEL1'
-            elif stage_rects[1] is not None:
-                if stage_rects[1].collidepoint(event.pos) and state == 'TOWN':
-                    state = 'MINERSGUILD'
-            elif stage_rects[2] is not None:
-                if stage_rects[2].collidepoint(event.pos) and state == 'MINERSGUILD':
-                    timer = 0
-                    worker_hired = 0
-                    if shard >= get_cost()[0]:
-                        shard -= get_cost()[0]
-                        minerstr += 1
-                        str_up = 1 # (1 for yes, generate success text)
-                    else:
-                        str_up = 2 # (2 for no)
-            elif stage_rects[3] is not None: #elif only runs where everything preceding it (until first if) is False
-                if stage_rects[3].collidepoint(event.pos) and state == 'MINERSGUILD':
-                    timer = 0
-                    str_up = 0
-                    if sshard >= get_cost()[1]:
-                        sshard -= get_cost()[1]
-                        worker_hired = 1
-                        workers += 1
-                    else:
-                        worker_hired = 2
+            # elif draw_mainclicktarget().collidepoint(event.pos) and (state == 'TUTORIAL' or state == 'CAVELEVEL1'):
+            #     shard, sshard = make_click_shard(shard,sshard)
+            #
+            # if stage_rects[0].collidepoint(event.pos):
+            #     if state == 'CAVELEVEL1' or state == 'MINERSGUILD':
+            #         state = 'TOWN'
+            #     elif state == 'TOWN':
+            #         state = 'CAVELEVEL1'
+            # elif stage_rects[1] is not None:
+            #     if stage_rects[1].collidepoint(event.pos) and state == 'TOWN':
+            #         state = 'MINERSGUILD'
+            # elif stage_rects[2] is not None:
+            #     if stage_rects[2].collidepoint(event.pos) and state == 'MINERSGUILD':
+            #         timer = 0
+            #         worker_hired = 0
+            #         if shard >= get_cost()[0]:
+            #             shard -= get_cost()[0]
+            #             minerstr += 1
+            #             str_up = 1 # (1 for yes, generate success text)
+            #         else:
+            #             str_up = 2 # (2 for no)
+            # elif stage_rects[3] is not None: #elif only runs where everything preceding it (until first if) is False
+            #     if stage_rects[3].collidepoint(event.pos) and state == 'MINERSGUILD':
+            #         timer = 0
+            #         str_up = 0
+            #         if sshard >= get_cost()[1]:
+            #             sshard -= get_cost()[1]
+            #             worker_hired = 1
+            #             workers += 1
+            #         else:
+            #             worker_hired = 2
             #print(workers)
 
-    draw_intro()
-    draw_tutorial()
-    draw_cavelevel1()
-    draw_town()
-    str_up, counter, timer, worker_hired = draw_miners_guild(str_up,counter,timer, worker_hired)
-    shard,sshard=auto_miners(shard,sshard,workers)
+    # Clear the screen
+    screen.fill(CLEAR) # Passively fills all blank space. Catch-all just in case
+
+    # Event handling
+    #stage_rects = set_stage_icon_rects()
+    counter = game_timer(counter) #total frame number
+
+    draw_scene(state)
+    # str_up, counter, timer, worker_hired = draw_miners_guild(str_up,counter,timer, worker_hired)
+    # shard,sshard=auto_miners(shard,sshard,workers)
     #print(worker_hired)
     # Update the display
     pygame.display.flip()

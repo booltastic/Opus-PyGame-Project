@@ -1,0 +1,26 @@
+scene = 'tutorial'
+
+def draw_scene(sceneinput):
+	draw_rects(sceneinput)
+	blit_images(sceneinput)
+
+def draw_rects(sceneinput2):   #sceneinput = 'tutorial'
+	if sceneinput2 = 'tutorial':
+		return tutorial_rects()
+	if sceneinput2 = 'cave':
+		return cave_rects()
+
+def <scene>_rects():
+	rects={}
+	Str_Up_Rect = .rect
+	Str_Down_Rect = .rect
+	return rects
+
+def draw_<scene>():
+	blit
+--
+
+drawscene<scene>(rects):
+
+
+
