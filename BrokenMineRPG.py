@@ -71,18 +71,6 @@ tuttext_locations = [Text_Location_Center,
                      Text_Location_Center,
                      Text_Location_Right]
 
-#Next Button
-def draw_next_button():
-    nexttext_font = pygame.font.Font(None, 40)
-    nextbuttonstring = nexttext_font.render(str(nextbuttontext), True, WHITE)  # rendering text as object/image
-    nextbuttontext_rect = nextbuttonstring.get_rect(
-        center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 50))  # gets rect of the text shape, placed centered at a location
-    nextbuttontext_rect.inflate_ip(nextbuttontext_rect.width*1.2,nextbuttontext_rect.height*1.2)
-    buttontextspot = nextbuttonstring.get_rect(center = nextbuttontext_rect.center)
-    pygame.draw.rect(screen, BLUE, nextbuttontext_rect) #draw red rect
-    screen.blit(nextbuttonstring, buttontextspot) #draw next text
-    return nextbuttontext_rect
-
 #Background Images
 quainttownimage = pygame.image.load('QuaintTownSquare.png')
 level1minesceneimage = pygame.image.load('RockyMineLevel1.png')
@@ -106,30 +94,44 @@ def draw_background(locationimage):
     background_rect = background_image.get_rect(center=(WINDOW_WIDTH/2,WINDOW_HEIGHT/2))
     screen.blit(background_image,background_rect)
 
+#Next Button
+def draw_next_button():
+    nexttext_font = pygame.font.Font(None, 40)
+    nextbuttonstring = nexttext_font.render(str(nextbuttontext), True, WHITE)  # rendering text as object/image
+    nextbutton_rect = nextbuttonstring.get_rect(
+        center=(WINDOW_WIDTH // 2 , WINDOW_HEIGHT - 50))  # gets rect of the text shape, placed at a location
+    nextbutton_rect = nextbutton_rect.inflate(nextbutton_rect.width*1.2,nextbutton_rect.height*1.2) #inflated to clickable size
+    buttontextspot = nextbuttonstring.get_rect(center = nextbutton_rect.center)
+    pygame.draw.rect(screen, BLUE, nextbutton_rect) #draw rect
+    screen.blit(nextbuttonstring, buttontextspot) #draw next text
+    return nextbutton_rect
+
 #Drawing location icons
 def draw_location_icon(locationiconimage):
+    icon_rect = pygame.Rect((WINDOW_WIDTH-95,WINDOW_HEIGHT-95),(90,90)) #location, size
+    pygame.draw.rect(screen,CLEAR,icon_rect) #draw it. currently drawn off screen (beside background)
     return_icon_image = pygame.transform.scale(locationiconimage,(90,90))
-    screen.blit(return_icon_image,set_stage_icon_rects()[0])
+    screen.blit(return_icon_image,icon_rect)
 
-def draw_screen_icons(locationiconimage):
-    if state == 'TUTORIAL':
-        draw_location_icon(locationiconimage)
-    if state == 'CAVELEVEL1':
-        draw_location_icon(locationiconimage)
-    if state == 'TOWN':
-        townlocation_icon_image = pygame.transform.scale(minersguildiconimage, (90, 90))
-        screen.blit(townlocation_icon_image, set_stage_icon_rects()[1])
-        draw_location_icon(locationiconimage)
-
-    if state == 'MINERSGUILD':
-        strength_up_icon_image = pygame.transform.scale(strength_up_icon, (120, 120))
-        screen.blit(strength_up_icon_image, set_stage_icon_rects()[2])
-
-        hire_worker_icon_image = pygame.transform.scale(hire_worker_icon, (120, 120))
-        screen.blit(hire_worker_icon_image, set_stage_icon_rects()[3])
-
-        draw_location_icon(locationiconimage)
-    else:pass
+# def draw_screen_icons(locationiconimage):
+#     if state == 'TUTORIAL':
+#         draw_location_icon(locationiconimage)
+#     if state == 'CAVELEVEL1':
+#         draw_location_icon(locationiconimage)
+#     if state == 'TOWN':
+#         townlocation_icon_image = pygame.transform.scale(minersguildiconimage, (90, 90))
+#         screen.blit(townlocation_icon_image, set_stage_icon_rects()[1])
+#         draw_location_icon(locationiconimage)
+#
+#     if state == 'MINERSGUILD':
+#         strength_up_icon_image = pygame.transform.scale(strength_up_icon, (120, 120))
+#         screen.blit(strength_up_icon_image, set_stage_icon_rects()[2])
+#
+#         hire_worker_icon_image = pygame.transform.scale(hire_worker_icon, (120, 120))
+#         screen.blit(hire_worker_icon_image, set_stage_icon_rects()[3])
+#
+#         draw_location_icon(locationiconimage)
+#     else:pass
 
 #Make shard
 def make_click_shard(shard,sshard):
@@ -176,48 +178,45 @@ def get_text_box(drawntext,fontsize,textlocation,color): #made for rects loops
     boxtextfont = pygame.font.Font(None,fontsize)
     renderedtext = boxtextfont.render(str(boxtext),True,WHITE) #renders text image
     colliderect = renderedtext.get_rect(center=textlocation) # create rect the size of the text at chosen location. sets ratio of size, and where we want the center
-    colliderect.inflate_ip(colliderect.width,colliderect.height) # inflate that rect in place to twice its size, this is what gets clicked
-    textbackgroundrect = pygame.draw.rect(screen, color, colliderect) # draws the rect renderedrect, this cannot be passed to collidepoint though (just drawing it)
+    colliderect = colliderect.inflate(colliderect.width,colliderect.height) # inflate that rect in place to twice its size, this is what gets clicked
+    pygame.draw.rect(screen, color, colliderect) # draws the rect renderedrect, this cannot be passed to collidepoint though (just drawing it)
     renderedtextrect = renderedtext.get_rect(center = colliderect.center) # this rect is creating a text sized rect and placing it at the center of the big rect, so its already centered. used for collide and blit. if blit
-
-    return renderedtext, renderedtextrect, colliderect, textbackgroundrect #text, textrect, colliderect, textbackgroundrect
+    screen.blit(renderedtext,renderedtextrect)
+    return colliderect
 
 
 ### SCENES ###
 
-# def draw_scene(sceneinput):
-#     rects=draw_rects_and_images(sceneinput)
-#     return rects
-
-def draw_scene(sceneinput):
+def draw_scene(sceneinput): #argument passed through is State
     if sceneinput == 'INTRO':
         return intro_rects_and_images() #these return rect dicts where each item should be a rect. draw_scene is equal to versatile rects now
     if sceneinput == 'TUTORIAL':
-        return tutorial_rects()
+        return tutorial_rects_and_images()
 
-def set_events(sceneinput):
-    if sceneinput == 'INTRO':
-        intro_events(sceneinput)
-    if sceneinput == 'TUTORIAL':
-        tutorial_events(sceneinput)
+# def set_events(sceneinput):
+#     if sceneinput == 'INTRO':
+#         intro_events(sceneinput)
+#     if sceneinput == 'TUTORIAL':
+#         tutorial_events(sceneinput)
 def intro_rects_and_images():
     rects={}
     rects['new_game_prompt_rect'] = get_text_box(newgametext[0],40,(WINDOW_WIDTH-400,WINDOW_HEIGHT-300), RED) #tuple of 4, with 3 rects: 2 for draw, 1 for collide
     rects['new_game_rect'] = get_text_box(newgametext[1],40, (WINDOW_WIDTH-600,WINDOW_HEIGHT-200), RED)
     rects['load_game_rect'] = get_text_box(newgametext[2],40, (WINDOW_WIDTH-250,WINDOW_HEIGHT-200), RED)
     screen.blit(introstring, introtext_rect)  # blits the rendered text onto the rectangle that is at a location
-    screen.blit(rects['new_game_rect'][0],rects['new_game_rect'][1]) #new game . text, textrect, colliderect, textbackgroundrect
-    screen.blit(rects['load_game_rect'][0],rects['load_game_rect'][1]) #load game
-    screen.blit(rects['new_game_prompt_rect'][0],rects['new_game_prompt_rect'][1])  #ask text
 
     #functions for other scene elements can go here, and isolate the rects for collide function
     return rects
 
+def change_state(new_state):
+    global state
+    state = new_state
+
 def intro_events(rects):
-    if rects['new_game_prompt_rect'][2].collidepoint(event.pos):
-        state = 'TUTORIAL'
+    if rects['new_game_rect'].collidepoint(event.pos):
+        change_state('TUTORIAL')
     elif rects['load_game_rect'] is not None:
-        if rects['load_game_rect'][2].collidepoint(event.pos):
+        if rects['load_game_rect'].collidepoint(event.pos):
             try:
                 with open('savestate.txt', 'r') as file:
                     content = file.read().split('(')[1]
@@ -227,99 +226,39 @@ def intro_events(rects):
                         pass
                     shard, sshard, workers, minerstr = float(content[0]), float(content[1]), float(content[2]), float(
                         content[3])
-                    state = 'TOWN'
+                    change_state('TOWN')
             except FileNotFoundError:
                 pass
-    return state
 
-def tutorial_rects():
+def tutorial_rects_and_images():
     rects={}
-    #rects['next_button']=draw_next_button()
     rects['screenbackground']=draw_background(level1minesceneimage)
     rects['returnicon'] = pygame.transform.scale(towniconimage, (90, 90))
-
     if promptnumber < len(tuttext):
         get_text_box(tuttext[promptnumber],35,tuttext_locations[promptnumber], RED)
+    rects['shardicon']=draw_shardicon()
+    rects['mainclicktarget']=draw_mainclicktarget()
+    rects['next_button']=draw_next_button()
     return rects
 
-def draw_tutorial():
-    if state == 'TUTORIAL':
-        draw_background(level1minesceneimage)
-        draw_next_button()
-        draw_shardicon()
-        draw_screen_icons(towniconimage)
-        draw_mainclicktarget()
-
-# def draw_cavelevel1():
-#     if state == 'CAVELEVEL1':
+# def draw_tutorial():
+#     if state == 'TUTORIAL':
+#
 #         draw_background(level1minesceneimage)
 #         draw_shardicon()
 #         draw_mainclicktarget()
-#         draw_screen_icons(towniconimage)
-#
-# def draw_town():
-#     if state == 'TOWN':
-#         draw_background(quainttownimage)
-#         draw_shardicon()
-#         draw_screen_icons(level1minesceneimageicon)
-#
-# def draw_miners_guild(str_up,counter,timer, worker_hired):
-#     if state == 'MINERSGUILD':
-#         draw_background(minersguildimage)
-#         draw_shardicon()
-#         draw_screen_icons(towniconimage)
-#
-#         costs_and_texts = get_cost()
-#
-#         if str_up == 1:
-#             draw_text_box(costs_and_texts[2][0], 30, (400, 250),RED)
-#             timer += 1
-#             worker_hired=0
-#             if timer >= 90:
-#                 str_up, timer = 0, 0
-#         elif str_up == 2:
-#             draw_text_box(costs_and_texts[2][1], 30, (400, 250),RED)
-#             timer += 1
-#             if timer >= 90:
-#                 str_up, timer = 0, 0
-#         if worker_hired == 1:
-#             draw_text_box(costs_and_texts[3][0], 30, (400, 250),RED)
-#             timer += 1
-#             str_up = 0
-#             if timer >= 90:
-#                 worker_hired, timer = 0, 0
-#         elif worker_hired == 2:
-#             draw_text_box(costs_and_texts[3][1], 30, (400, 250),RED)
-#             timer += 1
-#             str_up = 0
-#             if timer >= 90:
-#                 worker_hired, timer = 0, 0
-#     return str_up, counter, timer, worker_hired
+#         draw_location_icon(towniconimage)
+#         draw_next_button()
 
+def tutorial_events(rects):
+    if rects['next_button'].collidepoint(event.pos):
+        increment_number()
+        if promptnumber >= len(tuttext):
+            change_state('CAVELEVEL1')
 
-# def tutorial_rects():
-#     next_button=draw_next_button()
-#     if promptnumber < len(tuttext):
-#         get_text_box(tuttext[promptnumber],35,tuttext_locations[promptnumber], RED)
-#     return next_button
-#
-# def town_rects():
-#     if state == 'TOWN':
-#         minersguild_rect = pygame.Rect((WINDOW_WIDTH-300,WINDOW_HEIGHT-300),(90,90)) #location, size
-#         return minersguild_rect
-#
-# def miners_guild_rects():
-#     get_text_box(minerswelcome[0], 30, Text_Location_Center, RED)
-#     get_text_box(minerswelcome[1], 30, (400, 500), RED)
-#     minersguild_str_up_rect = pygame.Rect((WINDOW_WIDTH - 450, WINDOW_HEIGHT - 300), (120, 120))  # location, size
-#     hire_worker_icon_rect = pygame.Rect((WINDOW_WIDTH - 250, WINDOW_HEIGHT - 300), (120, 120))  # location, size
-#     return minersguild_str_up_rect, hire_worker_icon_rect
-
-# Stage Icon Rect.
-def set_stage_icon_rects():
-    icon_rect = pygame.Rect((WINDOW_WIDTH-95,WINDOW_HEIGHT-95),(90,90)) #location, size
-    icon_rect = pygame.draw.rect(screen,CLEAR,icon_rect) #draw it. currently drawn off screen (beside background)
-    return icon_rect
+def increment_number():
+    global promptnumber
+    promptnumber += 1
 
 rects=draw_scene('INTRO')
 
@@ -334,30 +273,9 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if state == 'INTRO':
-                state=intro_events(rects)
-            #mouse_pos = pygame.mouse.get_pos()
-            #if rects['new_game_prompt_rect'] is not None:
-
-            if rects['new_game_prompt_rect'][2].collidepoint(event.pos) and state == 'INTRO':
-                state = 'TUTORIAL'
-            elif rects['load_game_rect'] is not None:
-                if rects['load_game_rect'][2].collidepoint(event.pos) and state == 'INTRO':
-                    try:
-                        with open('savestate.txt','r') as file:
-                            content=file.read().split('(')[1]
-                            content=content.split(')')[0]
-                            content=content.split(', ')
-                            if len(content)==0:
-                                pass
-                            shard,sshard,workers,minerstr=float(content[0]),float(content[1]),float(content[2]),float(content[3])
-                            state='TOWN'
-                    except FileNotFoundError:
-                        pass
-            elif rects[''] is not None:
-                if stage_rects[7].collidepoint(event.pos) and state == 'TUTORIAL':
-                    promptnumber += 1
-                    if promptnumber >= len(tuttext) and state == 'TUTORIAL':
-                        state = 'CAVELEVEL1'
+                intro_events(rects)
+            elif state == 'TUTORIAL':
+                tutorial_events(rects)
             # elif draw_mainclicktarget().collidepoint(event.pos) and (state == 'TUTORIAL' or state == 'CAVELEVEL1'):
             #     shard, sshard = make_click_shard(shard,sshard)
             #
@@ -409,3 +327,61 @@ while running:
 # Quit Pygame
 pygame.quit()
 sys.exit()
+
+# def draw_cavelevel1():
+#     if state == 'CAVELEVEL1':
+#         draw_background(level1minesceneimage)
+#         draw_shardicon()
+#         draw_mainclicktarget()
+#         draw_screen_icons(towniconimage)
+#
+# def draw_town():
+#     if state == 'TOWN':
+#         draw_background(quainttownimage)
+#         draw_shardicon()
+#         draw_screen_icons(level1minesceneimageicon)
+#
+# def draw_miners_guild(str_up,counter,timer, worker_hired):
+#     if state == 'MINERSGUILD':
+#         draw_background(minersguildimage)
+#         draw_shardicon()
+#         draw_screen_icons(towniconimage)
+#
+#         costs_and_texts = get_cost()
+#
+#         if str_up == 1:
+#             draw_text_box(costs_and_texts[2][0], 30, (400, 250),RED)
+#             timer += 1
+#             worker_hired=0
+#             if timer >= 90:
+#                 str_up, timer = 0, 0
+#         elif str_up == 2:
+#             draw_text_box(costs_and_texts[2][1], 30, (400, 250),RED)
+#             timer += 1
+#             if timer >= 90:
+#                 str_up, timer = 0, 0
+#         if worker_hired == 1:
+#             draw_text_box(costs_and_texts[3][0], 30, (400, 250),RED)
+#             timer += 1
+#             str_up = 0
+#             if timer >= 90:
+#                 worker_hired, timer = 0, 0
+#         elif worker_hired == 2:
+#             draw_text_box(costs_and_texts[3][1], 30, (400, 250),RED)
+#             timer += 1
+#             str_up = 0
+#             if timer >= 90:
+#                 worker_hired, timer = 0, 0
+#     return str_up, counter, timer, worker_hired
+#
+# def town_rects():
+#     if state == 'TOWN':
+#         minersguild_rect = pygame.Rect((WINDOW_WIDTH-300,WINDOW_HEIGHT-300),(90,90)) #location, size
+#         return minersguild_rect
+#
+# def miners_guild_rects():
+#     get_text_box(minerswelcome[0], 30, Text_Location_Center, RED)
+#     get_text_box(minerswelcome[1], 30, (400, 500), RED)
+#     minersguild_str_up_rect = pygame.Rect((WINDOW_WIDTH - 450, WINDOW_HEIGHT - 300), (120, 120))  # location, size
+#     hire_worker_icon_rect = pygame.Rect((WINDOW_WIDTH - 250, WINDOW_HEIGHT - 300), (120, 120))  # location, size
+#     return minersguild_str_up_rect, hire_worker_icon_rect
