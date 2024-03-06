@@ -182,36 +182,55 @@ def get_text_box(drawntext,fontsize,textlocation,color): #made for rects loops
 
     return renderedtext, renderedtextrect, colliderect, textbackgroundrect #text, textrect, colliderect, textbackgroundrect
 
-### SCENES
-def draw_scene(sceneinput):
-    rects=draw_rects(sceneinput)
-    blit_images(sceneinput) #state
-    return rects
 
-def draw_rects(sceneinput2):
-    if sceneinput2 == 'INTRO':
-        return intro_rects()
-    if sceneinput2 == 'TUTORIAL':
+### SCENES ###
+
+# def draw_scene(sceneinput):
+#     rects=draw_rects_and_images(sceneinput)
+#     return rects
+
+def draw_scene(sceneinput):
+    if sceneinput == 'INTRO':
+        return intro_rects_and_images() #these return rect dicts where each item should be a rect. draw_scene is equal to versatile rects now
+    if sceneinput == 'TUTORIAL':
         return tutorial_rects()
 
-def blit_images(sceneinput2):
-    rects=draw_rects(sceneinput2)
-    if sceneinput2 == 'INTRO':
-        draw_intro(rects)
-    if sceneinput2 == 'TUTORIAL':
-        draw_tutorial()
-
-def intro_rects():
+def set_events(sceneinput):
+    if sceneinput == 'INTRO':
+        intro_events(sceneinput)
+    if sceneinput == 'TUTORIAL':
+        tutorial_events(sceneinput)
+def intro_rects_and_images():
     rects={}
-    rects['new_game_prompt_rect'] = get_text_box(newgametext[0],40,(WINDOW_WIDTH-400,WINDOW_HEIGHT-300), RED)
+    rects['new_game_prompt_rect'] = get_text_box(newgametext[0],40,(WINDOW_WIDTH-400,WINDOW_HEIGHT-300), RED) #tuple of 4, with 3 rects: 2 for draw, 1 for collide
     rects['new_game_rect'] = get_text_box(newgametext[1],40, (WINDOW_WIDTH-600,WINDOW_HEIGHT-200), RED)
     rects['load_game_rect'] = get_text_box(newgametext[2],40, (WINDOW_WIDTH-250,WINDOW_HEIGHT-200), RED)
-    return rects
-def draw_intro(rects):
     screen.blit(introstring, introtext_rect)  # blits the rendered text onto the rectangle that is at a location
-    screen.blit(rects['new_game_rect'][0],rects['new_game_rect'][1]) #new game #text, textrect, colliderect, textbackgroundrect
+    screen.blit(rects['new_game_rect'][0],rects['new_game_rect'][1]) #new game . text, textrect, colliderect, textbackgroundrect
     screen.blit(rects['load_game_rect'][0],rects['load_game_rect'][1]) #load game
     screen.blit(rects['new_game_prompt_rect'][0],rects['new_game_prompt_rect'][1])  #ask text
+
+    #functions for other scene elements can go here, and isolate the rects for collide function
+    return rects
+
+def intro_events(rects):
+    if rects['new_game_prompt_rect'][2].collidepoint(event.pos):
+        state = 'TUTORIAL'
+    elif rects['load_game_rect'] is not None:
+        if rects['load_game_rect'][2].collidepoint(event.pos):
+            try:
+                with open('savestate.txt', 'r') as file:
+                    content = file.read().split('(')[1]
+                    content = content.split(')')[0]
+                    content = content.split(', ')
+                    if len(content) == 0:
+                        pass
+                    shard, sshard, workers, minerstr = float(content[0]), float(content[1]), float(content[2]), float(
+                        content[3])
+                    state = 'TOWN'
+            except FileNotFoundError:
+                pass
+    return state
 
 def tutorial_rects():
     rects={}
@@ -314,8 +333,11 @@ while running:
                 file.write(str(savestatelist))
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            if state == 'INTRO':
+                state=intro_events(rects)
             #mouse_pos = pygame.mouse.get_pos()
             #if rects['new_game_prompt_rect'] is not None:
+
             if rects['new_game_prompt_rect'][2].collidepoint(event.pos) and state == 'INTRO':
                 state = 'TUTORIAL'
             elif rects['load_game_rect'] is not None:
@@ -376,7 +398,7 @@ while running:
     #stage_rects = set_stage_icon_rects()
     counter = game_timer(counter) #total frame number
 
-    draw_scene(state)
+    rects=draw_scene(state)
     # str_up, counter, timer, worker_hired = draw_miners_guild(str_up,counter,timer, worker_hired)
     # shard,sshard=auto_miners(shard,sshard,workers)
     #print(worker_hired)
