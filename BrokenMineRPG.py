@@ -160,7 +160,7 @@ def draw_shardicon():
     shardrect = shard_text.get_rect(center=(60,550))
     screen.blit(shard_text,shardrect)
 
-    #Special Shards 
+    #Special Shards
     sshard_font = pygame.font.Font(None, 30)
     sshard_string = 'Special Shards: '+ str(int(sshard))
     sshard_text = sshard_font.render(sshard_string, True, WHITE)
@@ -178,11 +178,11 @@ def get_text_box(drawntext,fontsize,textlocation,color): #made for rects loops
     boxtextfont = pygame.font.Font(None,fontsize)
     renderedtext = boxtextfont.render(str(boxtext),True,WHITE) #renders text image
     colliderect = renderedtext.get_rect(center=textlocation) # create rect the size of the text at chosen location. sets ratio of size, and where we want the center
-    colliderect = colliderect.inflate(colliderect.width,colliderect.height) # inflate that rect in place to twice its size, this is what gets clicked
+    colliderect = colliderect.inflate(colliderect.width*0.15,colliderect.height) # inflate that rect in place to twice its size, this is what gets clicked
     pygame.draw.rect(screen, color, colliderect) # draws the rect renderedrect, this cannot be passed to collidepoint though (just drawing it)
     renderedtextrect = renderedtext.get_rect(center = colliderect.center) # this rect is creating a text sized rect and placing it at the center of the big rect, so its already centered. used for collide and blit. if blit
     screen.blit(renderedtext,renderedtextrect)
-    return colliderect
+    return colliderect #if applicable. only used if you need to click it
 
 
 ### SCENES ###
@@ -239,6 +239,7 @@ def tutorial_rects_and_images():
     rects['shardicon']=draw_shardicon()
     rects['mainclicktarget']=draw_mainclicktarget()
     rects['next_button']=draw_next_button()
+    rects['corner_location_icon']=draw_location_icon(towniconimage)
     return rects
 
 # def draw_tutorial():
