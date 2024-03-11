@@ -88,9 +88,9 @@ strength_up_icon = pygame.transform.scale(strength_up_icon, (120, 120))
 hire_worker_icon = pygame.image.load('HireWorkerIcon.png')
 hire_worker_icon = pygame.transform.scale(hire_worker_icon, (120, 120))
 
-def game_timer(counter):
+def game_timer():
+    global counter
     counter += 1
-    return counter
 # Drawing scene backgrounds
 def draw_background(locationimage):
     background_image = pygame.transform.scale(locationimage, (WINDOW_HEIGHT,WINDOW_HEIGHT))
@@ -114,11 +114,9 @@ def draw_location_icon(locationiconimage):
     return_icon_image = pygame.transform.scale(locationiconimage,(90,90))
     screen.blit(return_icon_image,icon_rect)
     return icon_rect
-
 #Make shard
 def make_click_shard():
-    global shard
-    global sshard
+    global shard, sshard
     shard+=(minerstr/2)
     sshard_chance = random.randint(1,300)
     if sshard_chance >= (300-minerstr):
@@ -126,21 +124,22 @@ def make_click_shard():
             sshard += 1
     if minerstr >= 15:
             sshard += 2
-def auto_miners(workers):
-    global shard
-    global sshard
+def auto_miners():
+    global shard, sshard
     if workers >= 1:
-        shard += workers/30
+        shard += workers/60
         sshard_chance = random.randint(1, 3000)
         if sshard_chance >= (3000-(workers)):
             sshard += 1
 def get_cost():
+    global minerstr, workers
+    cost_texts={}
     minerstrcost = int(minerstr*25)
-    workercost= int(workers*1.75)+5
-    str_upgrade_text = ['Click power +1!', 'Not enough shards! (Costs ' + str(minerstrcost) + ')']
-    worker_hired_text = ['Worker speed increased!', 'Not enough Special Shards! (Costs ' + str(workercost) + ')']
-    return minerstrcost, workercost,str_upgrade_text,worker_hired_text
-costs_and_texts=get_cost()
+    workercost = int(workers*1.75)+5
+    cost_texts['str_upgrade_text'] = ['Click power +1!', 'Not enough shards! (Costs ' + str(minerstrcost) + ')']
+    cost_texts['worker_hired_text'] = ['Worker speed increased!', 'Not enough Special Shards! (Costs ' + str(workercost) + ')']
+    return minerstrcost, workercost,cost_texts
+cost_texts=get_cost()[2]
 
 def draw_shardicon():
     #Shards
@@ -190,13 +189,14 @@ def draw_scene(sceneinput): #argument passed through is State
 def intro_rects_and_images():
     rects={}
     get_text_box(newgametext[0],40,(WINDOW_WIDTH-400,WINDOW_HEIGHT-300), RED) #tuple of 4, with 3 rects: 2 for draw, 1 for collide
-    rects['new_game_rect'] = get_text_box(newgametext[1],40, (WINDOW_WIDTH-600,WINDOW_HEIGHT-200), RED)
-    rects['load_game_rect'] = get_text_box(newgametext[2],40, (WINDOW_WIDTH-250,WINDOW_HEIGHT-200), RED)
+    rects['new_game_rect'] = get_text_box(newgametext[1],40, (WINDOW_WIDTH-600,WINDOW_HEIGHT-200), BLUE)
+    rects['load_game_rect'] = get_text_box(newgametext[2],40, (WINDOW_WIDTH-250,WINDOW_HEIGHT-200), BLUE)
     screen.blit(introstring, introtext_rect)  # blits the rendered text onto the rectangle that is at a location
 
     #functions for other scene elements can go here, and isolate the rects for collide function
     return rects
 def intro_events(rects):
+    global shard, sshard, workers, minerstr
     if rects['new_game_rect'].collidepoint(event.pos):
         change_state('TUTORIAL')
     elif rects['load_game_rect'] is not None:
@@ -269,24 +269,24 @@ def miners_guild_rects_and_images():
     screen.blit(hire_worker_icon, rects['hire_worker_rect'])
 
     if str_up == 1:
-        get_text_box(costs_and_texts[2][0], 30, (400, 250),RED)
+        get_text_box(cost_texts['str_upgrade_text'][0], 30, (400, 250),RED)
         timer += 1
         worker_hired=0
         if timer >= 90:
             str_up, timer = 0, 0
     elif str_up == 2:
-        get_text_box(costs_and_texts[2][1], 30, (400, 250),RED)
+        get_text_box(cost_texts['str_upgrade_text'][1], 30, (400, 250),RED)
         timer += 1
         if timer >= 90:
             str_up, timer = 0, 0
     if worker_hired == 1:
-        get_text_box(costs_and_texts[3][0], 30, (400, 250),RED)
+        get_text_box(cost_texts['worker_hired_text'][0], 30, (400, 250),RED)
         timer += 1
         str_up = 0
         if timer >= 90:
             worker_hired, timer = 0, 0
     elif worker_hired == 2:
-        draw_text_box(costs_and_texts[3][1], 30, (400, 250),RED)
+        get_text_box(cost_texts['worker_hired_text'][1], 30, (400, 250),RED)
         timer += 1
         str_up = 0
         if timer >= 90:
@@ -314,8 +314,10 @@ def miners_guild_events(rects):
             workers += 1
         else:
             worker_hired = 2
-    if rects['corner_location_icon']:
+    if rects['corner_location_icon'].collidepoint(event.pos):
         change_state('TOWN')
+        str_up = 0
+        worker_hired = 0
 
 def increment_number():
     global promptnumber
@@ -347,8 +349,9 @@ while running:
     screen.fill(CLEAR) # Passively fills all blank space. Catch-all just in case
 
     # Event handling
-    counter = game_timer(counter) #total frame number
+    game_timer() #total frame number
     rects=draw_scene(state)
+    auto_miners()
 
     # Update the display
     pygame.display.flip()
