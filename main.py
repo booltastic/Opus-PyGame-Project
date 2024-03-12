@@ -132,14 +132,13 @@ def auto_miners():
         if sshard_chance >= (3000-(workers)):
             sshard += 1
 def get_cost():
-    global minerstr, workers
+    global minerstr, workers, workercost, minerstrcost
     cost_texts={}
     minerstrcost = int(minerstr*25)
     workercost = int(workers*1.75)+5
     cost_texts['str_upgrade_text'] = ['Click power +1!', 'Not enough shards! (Costs ' + str(minerstrcost) + ')']
     cost_texts['worker_hired_text'] = ['Worker speed increased!', 'Not enough Special Shards! (Costs ' + str(workercost) + ')']
-    return minerstrcost, workercost,cost_texts
-cost_texts=get_cost()[2]
+    return cost_texts
 
 def draw_shardicon():
     #Shards
@@ -192,7 +191,6 @@ def intro_rects_and_images():
     rects['new_game_rect'] = get_text_box(newgametext[1],40, (WINDOW_WIDTH-600,WINDOW_HEIGHT-200), BLUE)
     rects['load_game_rect'] = get_text_box(newgametext[2],40, (WINDOW_WIDTH-250,WINDOW_HEIGHT-200), BLUE)
     screen.blit(introstring, introtext_rect)  # blits the rendered text onto the rectangle that is at a location
-
     #functions for other scene elements can go here, and isolate the rects for collide function
     return rects
 def intro_events(rects):
@@ -256,6 +254,7 @@ def town_events(rects):
 def miners_guild_rects_and_images():
     global shard, sshard, timer, worker_hired, workers, minerstr, str_up
     rects={}
+    cost_texts = get_cost() #just running get_cost and reading values
     draw_background(minersguildimage)
     draw_shardicon()
     rects['corner_location_icon']=draw_location_icon(towniconimage)
@@ -297,8 +296,8 @@ def miners_guild_events(rects):
     if rects['str_up_rect'].collidepoint(event.pos):
         timer = 0
         worker_hired = 0
-        if shard >= get_cost()[0]:
-            shard -= get_cost()[0]
+        if shard >= minerstrcost:
+            shard -= minerstrcost
             minerstr += 1
             str_up = 1 # (1 for yes, generate success text)
         else:
@@ -308,8 +307,8 @@ def miners_guild_events(rects):
         timer = 0
         str_up = 0
 
-        if sshard >= get_cost()[1]:
-            sshard -= get_cost()[1]
+        if sshard >= workercost:
+            sshard -= workercost
             worker_hired = 1
             workers += 1
         else:
