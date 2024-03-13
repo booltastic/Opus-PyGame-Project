@@ -10,11 +10,16 @@ pygame.mixer.init()
 class systemhandler:
     def __init__(self):
         # Set up the display
-        sdScreen = True
-        if sdScreen:
-            self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 800, 600
-        else:
+        sdScreen = 'small'
+        if sdScreen == 'medium':
+            self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 1200, 900
+            self.fontscale = int(1.75)
+        elif sdScreen == 'large':
             self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 1600, 1200
+            self.fontscale = int(2.5)
+        else:
+            self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 800, 600
+            self.fontscale = int(1)
         self.screen = pygame.display.set_mode((self.WINDOW_WIDTH, self.WINDOW_HEIGHT))
         pygame.display.set_caption("Practice Clicker Game")
         self.clock = pygame.time.Clock()
@@ -34,7 +39,7 @@ class systemhandler:
 
         # Global Variables
         self.titlestring = 'The Clicker Game'
-        self.text_font = pygame.font.Font(None, 50)
+        self.text_font = pygame.font.Font(None, 50*self.fontscale)
         self.introstring = 'Welcome to Mine.Cafe!'
         self.introstring = self.text_font.render(str(self.introstring), True, self.WHITE)  # rendering text as object/image
         self.introtext_rect = self.introstring.get_rect(
@@ -111,7 +116,7 @@ class systemhandler:
 
         # Next Button
         def draw_next_button():
-            nexttext_font = pygame.font.Font(None, 40)
+            nexttext_font = pygame.font.Font(None, 40*self.fontscale)
             nextbuttonstring = nexttext_font.render(str(self.nextbuttontext), True, self.WHITE)  # rendering text as object/image
             nextbutton_rect = nextbuttonstring.get_rect(
                 center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT*0.92))  # gets rect of the text shape, placed at a location
@@ -124,7 +129,7 @@ class systemhandler:
 
         # Drawing location icons
         def draw_location_icon(locationiconimage):
-            icon_rect = pygame.Rect((self.WINDOW_WIDTH*0.88, self.WINDOW_HEIGHT*0.84), (self.small_icon))  # location, size
+            icon_rect = pygame.Rect((self.WINDOW_WIDTH*0.8822, self.WINDOW_HEIGHT*0.843), (self.small_icon))  # location, size
             pygame.draw.rect(self.screen, self.CLEAR, icon_rect)  # draw it. currently drawn off screen (beside background)
             return_icon_image = pygame.transform.scale(locationiconimage, (self.small_icon))
             self.screen.blit(return_icon_image, icon_rect)
@@ -158,17 +163,17 @@ class systemhandler:
 
         def draw_shardicon():
             # Shards
-            shard_font = pygame.font.Font(None, 30)
+            shard_font = pygame.font.Font(None, 35*self.fontscale)
             shard_string = 'Shards: ' + str(int(self.shard))
             shard_text = shard_font.render(shard_string, True, self.WHITE)
-            shardrect = shard_text.get_rect(center=(self.WINDOW_WIDTH*0.1, self.WINDOW_HEIGHT*0.9))
+            shardrect = shard_text.get_rect(midleft=(self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.9))
             self.screen.blit(shard_text, shardrect)
 
             # Special Shards
-            sshard_font = pygame.font.Font(None, 30)
+            sshard_font = pygame.font.Font(None, 35*self.fontscale)
             sshard_string = 'Special Shards: ' + str(int(self.sshard))
             sshard_text = sshard_font.render(sshard_string, True, self.WHITE)
-            sshardrect = sshard_text.get_rect(center=(self.WINDOW_WIDTH*0.14, self.WINDOW_HEIGHT*0.95))
+            sshardrect = sshard_text.get_rect(midleft=(self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.95))
             self.screen.blit(sshard_text, sshardrect)
 
         def draw_mainclicktarget():
@@ -209,10 +214,10 @@ class systemhandler:
 
         def intro_rects_and_images():
             rects = {}
-            get_text_box(self.newgametext[0], 40, (self.WINDOW_WIDTH/2, self.WINDOW_HEIGHT*0.5),
+            get_text_box(self.newgametext[0], 40*self.fontscale, (self.WINDOW_WIDTH/2, self.WINDOW_HEIGHT*0.5),
                          self.RED)  # tuple of 4, with 3 rects: 2 for draw, 1 for collide
-            rects['new_game_rect'] = get_text_box(self.newgametext[1], 40, (self.WINDOW_WIDTH*0.25, self.WINDOW_HEIGHT*0.65), self.BLUE)
-            rects['load_game_rect'] = get_text_box(self.newgametext[2], 40, (self.WINDOW_WIDTH*0.75, self.WINDOW_HEIGHT*0.65), self.BLUE)
+            rects['new_game_rect'] = get_text_box(self.newgametext[1], 40*self.fontscale, (self.WINDOW_WIDTH*0.25, self.WINDOW_HEIGHT*0.65), self.BLUE)
+            rects['load_game_rect'] = get_text_box(self.newgametext[2], 40*self.fontscale, (self.WINDOW_WIDTH*0.75, self.WINDOW_HEIGHT*0.65), self.BLUE)
             self.screen.blit(self.introstring, self.introtext_rect)  # blits the rendered text onto the rectangle that is at a location
             # functions for other scene elements can go here, and isolate the rects for collide function
             return rects
@@ -240,7 +245,7 @@ class systemhandler:
             rects = {}
             draw_background(self.level1minesceneimage)
             if self.promptnumber < len(self.tuttext):
-                get_text_box(self.tuttext[self.promptnumber], 35, self.tuttext_locations[self.promptnumber], self.RED)
+                get_text_box(self.tuttext[self.promptnumber], 40*self.fontscale, self.tuttext_locations[self.promptnumber], self.RED)
             draw_shardicon()
             draw_location_icon(self.towniconimage)
             draw_mainclicktarget()
@@ -290,34 +295,34 @@ class systemhandler:
             draw_shardicon()
             rects['corner_location_icon'] = draw_location_icon(self.towniconimage)
 
-            get_text_box(self.minerswelcome[0], 30, self.Text_Location_Center, self.RED)
-            get_text_box(self.minerswelcome[1], 30, (400, 500), self.RED)
+            get_text_box(self.minerswelcome[0], 30*self.fontscale, self.Text_Location_Center, self.RED)
+            get_text_box(self.minerswelcome[1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.8), self.RED)
 
-            rects['str_up_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.35, self.WINDOW_HEIGHT*0.4), self.medium_icon)  # location, size
+            rects['str_up_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.3, self.WINDOW_HEIGHT*0.4), self.medium_icon)  # location, size
             self.screen.blit(self.strength_up_icon, rects['str_up_rect'])
-            rects['hire_worker_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.65, self.WINDOW_HEIGHT*0.4),
+            rects['hire_worker_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.6, self.WINDOW_HEIGHT*0.4),
                                                     self.medium_icon)  # location, size
             self.screen.blit(self.hire_worker_icon, rects['hire_worker_rect'])
 
             if self.str_up == 1:
-                get_text_box(cost_texts['str_upgrade_text'][0], 30, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
+                get_text_box(cost_texts['str_upgrade_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
                 self.timer += 1
                 self.worker_hired = 0
                 if self.timer >= 90:
                     self.str_up, self.timer = 0, 0
             elif self.str_up == 2:
-                get_text_box(cost_texts['str_upgrade_text'][1], 30, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
+                get_text_box(cost_texts['str_upgrade_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
                 self.timer += 1
                 if self.timer >= 90:
                     self.str_up, self.timer = 0, 0
             if self.worker_hired == 1:
-                get_text_box(cost_texts['worker_hired_text'][0], 30, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
+                get_text_box(cost_texts['worker_hired_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
                 self.timer += 1
                 self.str_up = 0
                 if self.timer >= 90:
                     self.worker_hired, self.timer = 0, 0
             elif self.worker_hired == 2:
-                get_text_box(cost_texts['worker_hired_text'][1], 30, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
+                get_text_box(cost_texts['worker_hired_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
                 self.timer += 1
                 self.str_up = 0
                 if self.timer >= 90:
