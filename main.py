@@ -7,14 +7,17 @@ import random
 pygame.init()
 pygame.mixer.init()
 
+#You are hired to mine this mysterious shard. There's some sort of value you're unaware of. You get better, and start to
+# recruit your own miners. Over time, the mine depletes. But you can venture further...
+
 class systemhandler:
     def __init__(self):
         # Set up the display
-        sdScreen = 'small'
-        if sdScreen == 'medium':
+        screen_res = 'small'
+        if screen_res == 'medium':
             self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 1200, 900
             self.fontscale = int(1.75)
-        elif sdScreen == 'large':
+        elif screen_res == 'large':
             self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 1600, 1200
             self.fontscale = int(2.5)
         else:
@@ -48,6 +51,7 @@ class systemhandler:
         self.state = 'INTRO'
         self.promptnumber = 0
         self.shard = 0
+        self.totalmined = 0
         self.sshard = 0
         self.mouseclick = 0
         self.minerstr = 1
@@ -56,13 +60,14 @@ class systemhandler:
         self.workercost = 0
         self.workers = 0
         self.worker_hired = 0
+        self.workerlimit = 10
 
         # Player Inventory
         player_inventory = []
 
         # Game Text
         self.nextbuttontext = 'Next'
-        self.tuttext = ['Welcome to the Mines of Esswun!', 'Click the icon to mine, and gain rocks',
+        self.tuttext = ['Welcome to the Mines of Esswun, kid!', 'We need you to mine these blue shards.',"Don't ask questions. Just mine!",
                    'Your loot is shown here',
                    'and when your work is done, ', 'return to town here!']
         self.minerswelcome = ['Welcome to the Miner\'s Guild!', 'Spend your shards to upgrade your mining skill']
@@ -70,9 +75,10 @@ class systemhandler:
 
         # Pre-Determined Locations For Repeat Items
         self.Text_Location_Center = (self.WINDOW_WIDTH*0.5 , self.WINDOW_HEIGHT*0.7)
-        self.Text_Location_Left = (self.WINDOW_WIDTH*0.22, self.WINDOW_HEIGHT*0.80)
-        self.Text_Location_Right = (self.WINDOW_WIDTH*0.78, self.WINDOW_HEIGHT*0.80)
+        self.Text_Location_Left = (self.WINDOW_WIDTH*0.22, self.WINDOW_HEIGHT*0.7)
+        self.Text_Location_Right = (self.WINDOW_WIDTH*0.78, self.WINDOW_HEIGHT*0.76)
         self.tuttext_locations = [self.Text_Location_Center,
+                             self.Text_Location_Center,
                              self.Text_Location_Center,
                              self.Text_Location_Left,
                              self.Text_Location_Center,
@@ -104,6 +110,9 @@ class systemhandler:
 
         self.hire_worker_icon = pygame.image.load('HireWorkerIcon.png')
         self.hire_worker_icon = pygame.transform.scale(self.hire_worker_icon, (self.medium_icon))
+
+        self.ShopRobotMiner_icon = pygame.image.load('ShopRobotMiner.jpg')
+        self.ShopRobotMiner_icon = pygame.transform.scale(self.ShopRobotMiner_icon, (self.medium_icon))
 
         def game_timer():
             self.counter += 1
@@ -138,16 +147,18 @@ class systemhandler:
         # Make shard
         def make_click_shard():
             self.shard += (self.minerstr / 2)
+            self.totalmined += (self.minerstr / 2)
             sshard_chance = random.randint(1, 300)
             if sshard_chance >= (300 - self.minerstr):
                 if self.minerstr < 10:
                     self.sshard += 1
-            if self.minerstr >= 15:
-                self.sshard += 2
+                if self.minerstr >= 15:
+                    self.sshard += 2
 
         def auto_miners():
             if self.workers >= 1:
                 self.shard += self.workers / 60
+                self.totalmined += self.workers / 60
                 sshard_chance = random.randint(1, 3000)
                 if sshard_chance >= (3000 - (self.workers)):
                     self.sshard += 1
@@ -156,25 +167,46 @@ class systemhandler:
             cost_texts = {}
             self.minerstrcost = int(self.minerstr * 25)
             self.workercost = int(self.workers * 1.75) + 5
-            cost_texts['str_upgrade_text'] = ['Click power +1!', 'Not enough shards! (Costs ' + str(self.minerstrcost) + ')']
+            cost_texts['str_upgrade_text'] = ['Mining Strength +1!', 'Not enough shards! (Costs ' + str(self.minerstrcost) + ')']
             cost_texts['worker_hired_text'] = ['Worker speed increased!',
-                                               'Not enough Special Shards! (Costs ' + str(self.workercost) + ')']
+                                               'Not enough Special Shards! (Costs ' + str(self.workercost) + ')', 'Worker limit reached (Current limit '+str(self.workerlimit) + ')']
             return cost_texts
 
         def draw_shardicon():
             # Shards
+            totalmined_font = pygame.font.Font(None, 35*self.fontscale)
+            totalmined_string = 'Total Shards Mined: ' + str(int(self.totalmined))
+            totalmined_text = totalmined_font.render(totalmined_string, True, self.WHITE)
+            totalminedrect = totalmined_text.get_rect(midleft=(self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.05))
+            self.screen.blit(totalmined_text, totalminedrect)
+
+            # Shards
             shard_font = pygame.font.Font(None, 35*self.fontscale)
             shard_string = 'Shards: ' + str(int(self.shard))
             shard_text = shard_font.render(shard_string, True, self.WHITE)
-            shardrect = shard_text.get_rect(midleft=(self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.9))
+            shardrect = shard_text.get_rect(midleft=(self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.8))
             self.screen.blit(shard_text, shardrect)
 
             # Special Shards
             sshard_font = pygame.font.Font(None, 35*self.fontscale)
             sshard_string = 'Special Shards: ' + str(int(self.sshard))
             sshard_text = sshard_font.render(sshard_string, True, self.WHITE)
-            sshardrect = sshard_text.get_rect(midleft=(self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.95))
+            sshardrect = sshard_text.get_rect(midleft=(self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.85))
             self.screen.blit(sshard_text, sshardrect)
+
+            # Workers
+            worker_font = pygame.font.Font(None, 35 * self.fontscale)
+            worker_string = 'Workers: ' + str(int(self.workers))
+            worker_text = worker_font.render(worker_string, True, self.WHITE)
+            workerrect = worker_text.get_rect(midleft=(self.WINDOW_WIDTH * 0.0175, self.WINDOW_HEIGHT * 0.9))
+            self.screen.blit(worker_text, workerrect)
+
+            # Mining Strength
+            minestr_font = pygame.font.Font(None, 35 * self.fontscale)
+            minestr_string = 'Mining Strength: ' + str(int(self.minerstr))
+            minestr_text = minestr_font.render(minestr_string, True, self.WHITE)
+            minestrrect = minestr_text.get_rect(midleft=(self.WINDOW_WIDTH * 0.0175, self.WINDOW_HEIGHT * 0.95))
+            self.screen.blit(minestr_text, minestrrect)
 
         def draw_mainclicktarget():
             glowingrockicon_rect = self.glowingrockicon.get_rect(center=self.screen_center)
@@ -234,9 +266,9 @@ class systemhandler:
                             content = content.split(', ')
                             if len(content) == 0:
                                 pass
-                            self.shard, self.sshard, self.workers, self.minerstr = float(content[0]), float(content[1]), float(
+                            self.totalmined, self.shard, self.sshard, self.workers, self.minerstr = float(content[0]), float(content[1]), float(
                                 content[2]), float(
-                                content[3])
+                                content[3]), float(content[4])
                             change_state('TOWN')
                     except FileNotFoundError:
                         pass
@@ -295,38 +327,51 @@ class systemhandler:
             draw_shardicon()
             rects['corner_location_icon'] = draw_location_icon(self.towniconimage)
 
-            get_text_box(self.minerswelcome[0], 30*self.fontscale, self.Text_Location_Center, self.RED)
-            get_text_box(self.minerswelcome[1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.8), self.RED)
+            get_text_box(self.minerswelcome[0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.55), self.RED)
+            get_text_box(self.minerswelcome[1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.65), self.RED)
 
-            rects['str_up_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.3, self.WINDOW_HEIGHT*0.4), self.medium_icon)  # location, size
+            rects['str_up_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.44, self.WINDOW_HEIGHT*0.3), self.medium_icon)  # location, size
             self.screen.blit(self.strength_up_icon, rects['str_up_rect'])
-            rects['hire_worker_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.6, self.WINDOW_HEIGHT*0.4),
+
+            rects['hire_worker_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.68, self.WINDOW_HEIGHT*0.3),
                                                     self.medium_icon)  # location, size
             self.screen.blit(self.hire_worker_icon, rects['hire_worker_rect'])
 
+            rects['ShopRobotMiner_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.2, self.WINDOW_HEIGHT*0.3),
+                                                    self.medium_icon)
+            self.screen.blit(self.ShopRobotMiner_icon, rects['ShopRobotMiner_rect'])
+
             if self.str_up == 1:
-                get_text_box(cost_texts['str_upgrade_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
+                get_text_box(cost_texts['str_upgrade_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.RED)
                 self.timer += 1
                 self.worker_hired = 0
                 if self.timer >= 90:
                     self.str_up, self.timer = 0, 0
             elif self.str_up == 2:
-                get_text_box(cost_texts['str_upgrade_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
+                get_text_box(cost_texts['str_upgrade_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.RED)
                 self.timer += 1
                 if self.timer >= 90:
                     self.str_up, self.timer = 0, 0
             if self.worker_hired == 1:
-                get_text_box(cost_texts['worker_hired_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
+                get_text_box(cost_texts['worker_hired_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.RED)
                 self.timer += 1
                 self.str_up = 0
                 if self.timer >= 90:
                     self.worker_hired, self.timer = 0, 0
             elif self.worker_hired == 2:
-                get_text_box(cost_texts['worker_hired_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.3), self.RED)
+                get_text_box(cost_texts['worker_hired_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.RED)
                 self.timer += 1
                 self.str_up = 0
                 if self.timer >= 90:
                     self.worker_hired, self.timer = 0, 0
+            elif self.worker_hired == 3:
+                get_text_box(cost_texts['worker_hired_text'][2], 30 * self.fontscale,
+                             (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.25), self.RED)
+                self.timer += 1
+                self.str_up = 0
+                if self.timer >= 90:
+                    self.worker_hired, self.timer = 0, 0
+
             return rects
 
         def miners_guild_events(rects):
@@ -343,10 +388,12 @@ class systemhandler:
             if rects['hire_worker_rect'].collidepoint(event.pos):
                 self.timer = 0
                 self.str_up = 0
-                if self.sshard >= self.workercost:
+                if self.sshard >= self.workercost and self.workers<self.workerlimit:
                     self.sshard -= self.workercost
                     self.worker_hired = 1
                     self.workers += 1
+                elif self.sshard >= self.workercost and self.workers>=self.workerlimit: #notifys worker limit reached
+                    self.worker_hired = 3
                 else:
                     self.worker_hired = 2
             if rects['corner_location_icon'].collidepoint(event.pos):
@@ -364,7 +411,7 @@ class systemhandler:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:  # should be the only IF, so the game will always close first. i think
                     with open('savestate.txt', 'w') as file:
-                        savestatelist = self.shard, self.sshard, self.workers, self.minerstr
+                        savestatelist = self.totalmined, self.shard, self.sshard, self.workers, self.minerstr
                         file.write(str(savestatelist))
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
