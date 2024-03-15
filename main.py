@@ -73,7 +73,6 @@ class systemhandler:
         self.tuttext = ['Welcome to the Mines of Esswun, kid!', 'We need you to mine these blue shards.',"Don't ask questions. Just mine!",
                    'Your loot is shown here',
                    'and when your work is done, ', 'return to town here!']
-        self.minerswelcome = ['Welcome to the Miner\'s Guild!', 'Spend your shards to upgrade your mining skill']
         self.newgametext = ['Load saved game?', 'New Game', 'Load Game']
 
         # Pre-Determined Locations For Repeat Items
@@ -119,9 +118,7 @@ class systemhandler:
         self.background_glow_icon3 = load_img('GlowingLight - Rotated2.png', self.large_icon)
 
         def darken_on_click(rect, icon, darkenedicon):
-            mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
-            mouse_pos = pygame.mouse.get_pos()
-            if mouse_clicked and rect.collidepoint(mouse_pos):
+            if self.mouse_clicked and rect.collidepoint(self.mouse_pos):
                 self.screen.blit(darkenedicon, rect)
             else:
                 self.screen.blit(icon, rect)
@@ -179,9 +176,9 @@ class systemhandler:
             cost_texts = {}
             self.minerstrcost = int(self.minerstr * 25)
             self.workercost = int(self.workers * 1.75) + 5
-            cost_texts['str_upgrade_text'] = ['Mining Strength +1!', 'Not enough shards! (Costs ' + str(self.minerstrcost) + ')']
+            cost_texts['str_upgrade_text'] = ['Mining Strength +1!', 'Not enough shards!']
             cost_texts['worker_hired_text'] = ['Worker speed increased!',
-                                               'Not enough Special Shards! (Costs ' + str(self.workercost) + ')', 'Worker limit reached (Current limit '+str(self.workerlimit) + ')']
+                                               'Not enough Special Shards!', 'Worker limit reached (Current limit '+str(self.workerlimit) + ')']
             return cost_texts
 
         def draw_shardicon():
@@ -205,6 +202,8 @@ class systemhandler:
             get_text_box(minestr_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.95), self.OPAQUEBLACK, 'left',0.1)
 
         def draw_mainclicktarget():
+            self.mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
+            self.mouse_pos = pygame.mouse.get_pos()
             timer = int(self.counter/3)
             for i in range(0,1):
                 if timer % 3 == i:
@@ -224,7 +223,7 @@ class systemhandler:
 
             return glowingrockicon_rect
 
-        def get_text_box(drawntext, fontsize, textlocation, color, alignment='center',boxscale=float(1)):  # made for rects loops
+        def get_text_box(drawntext, fontsize, textlocation, color, alignment='center',vertboxscale=float(1), horiboxscale=float(0.15)):  # made for rects loops
             boxtext = drawntext
             boxtextfont = pygame.font.Font(None, fontsize)
             renderedtext = boxtextfont.render(str(boxtext), True, self.WHITE)  # renders text image
@@ -234,8 +233,8 @@ class systemhandler:
             else:
                 colliderect = renderedtext.get_rect(
                     center=textlocation)
-            colliderect = colliderect.inflate(colliderect.width * 0.15,
-                                              colliderect.height*boxscale)  # inflate that rect in place to twice its size, this is what gets clicked
+            colliderect = colliderect.inflate(colliderect.width*horiboxscale,
+                                              colliderect.height*vertboxscale)  # inflate that rect in place to twice its size, this is what gets clicked
             # pygame.draw.rect(self.screen, color,
             #                  colliderect)  # draws the rect renderedrect, this cannot be passed to collidepoint though (just drawing it)
             renderedtextrect = renderedtext.get_rect(
@@ -357,20 +356,36 @@ class systemhandler:
                 change_state('MINERSGUILD')
 
         def miners_guild_rects_and_images():
+            self.mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
+            self.mouse_pos = pygame.mouse.get_pos()
             rects = {}
             cost_texts = get_cost()  # just running get_cost and reading values
             draw_background(self.minersguildimage)
             draw_shardicon()
+
+            #Rects
             rects['corner_location_icon'] = draw_location_icon(self.towniconimage)
-
-            get_text_box(self.minerswelcome[0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.55), self.OPAQUERED)
-            get_text_box(self.minerswelcome[1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.65), self.OPAQUERED)
-
-            rects['str_up_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.44, self.WINDOW_HEIGHT*0.3), self.medium_icon)  # location, size
-            rects['hire_worker_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.68, self.WINDOW_HEIGHT*0.3),
-                                                    self.medium_icon)  # location, size
             rects['ShopRobotMiner_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.2, self.WINDOW_HEIGHT*0.3),
                                                     self.medium_icon)
+            rects['str_up_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.435, self.WINDOW_HEIGHT*0.3), self.medium_icon)  # location, size
+            rects['hire_worker_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.68, self.WINDOW_HEIGHT*0.3),
+                                                    self.medium_icon)  # location, size
+            #Text
+            minerswelcome = ['Welcome to the Miner\'s Guild!', 'Spend your shards to upgrade your mining skill']
+            descripts = ['Cute little robot guy','Increase amount of shards mined per click (Costs '+ str(self.minerstrcost)+' Shards)','Add worker (Costs '+str(self.workercost)+' Special Shards)']
+            get_text_box(minerswelcome[0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.65), self.OPAQUERED, horiboxscale=0.09)
+            get_text_box(minerswelcome[1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.72), self.OPAQUERED, horiboxscale=0.09)
+            if rects['ShopRobotMiner_rect'].collidepoint(self.mouse_pos):
+                get_text_box(descripts[0], 30 * self.fontscale, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
+                         self.OPAQUERED, horiboxscale=0.09)
+            if rects['str_up_rect'].collidepoint(self.mouse_pos):
+                get_text_box(descripts[1], 30 * self.fontscale, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
+                             self.OPAQUERED, horiboxscale=0.003)
+            if rects['hire_worker_rect'].collidepoint(self.mouse_pos):
+                get_text_box(descripts[2], 30 * self.fontscale, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
+                             self.OPAQUERED, horiboxscale=0.09)
+
+            #Blits
             darken_on_click(rects['str_up_rect'], self.strength_up_icon, self.darkenedstrength_up_icon)
             darken_on_click(rects['hire_worker_rect'], self.hire_worker_icon, self.darkenedhire_worker_icon)
             darken_on_click(rects['ShopRobotMiner_rect'], self.ShopRobotMiner_icon, self.DarkenedShopRobotMiner_icon)
@@ -405,7 +420,6 @@ class systemhandler:
                 self.str_up = 0
                 if self.timer >= 90:
                     self.worker_hired, self.timer = 0, 0
-
             return rects
 
         def miners_guild_events(rects):
