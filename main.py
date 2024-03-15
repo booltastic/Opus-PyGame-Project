@@ -176,8 +176,8 @@ class systemhandler:
             cost_texts = {}
             self.minerstrcost = int(self.minerstr * 25)
             self.workercost = int(self.workers * 1.75) + 5
-            cost_texts['str_upgrade_text'] = ['Mining Strength +1!', 'Not enough shards!']
-            cost_texts['worker_hired_text'] = ['Worker speed increased!',
+            cost_texts['str_upgrade_text'] = ['Mining Strength +1!', 'Not enough Shards!']
+            cost_texts['worker_hired_text'] = ['New worker recruited!',
                                                'Not enough Special Shards!', 'Worker limit reached (Current limit '+str(self.workerlimit) + ')']
             return cost_texts
 
@@ -329,15 +329,15 @@ class systemhandler:
 
             #rects['corner_location_icon'] = draw_location_icon(self.quainttownimage)
             rects['minersguild_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.59, self.WINDOW_HEIGHT*0.34),
-                                                    (self.small_icon))  # location, size
+                                                    (self.medium_icon))  # location, size
             self.screen.blit(self.minersguildicon, rects['minersguild_rect'])
 
             rects['level1mine_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.43, self.WINDOW_HEIGHT*0.65),
-                                                    (self.small_icon))  # location, size
+                                                    (self.medium_icon))  # location, size
             self.screen.blit(self.level1minesceneimageicon, rects['level1mine_rect'])
 
             rects['treebuilding_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.266, self.WINDOW_HEIGHT*0.34),
-                                                    (self.small_icon))  # location, size
+                                                    (self.medium_icon))  # location, size
             self.screen.blit(self.treebuildingicon, rects['treebuilding_rect'])
 
             town_text = ['Back to the mines',"Miner's Guild", 'Strange Tree Building']
@@ -372,15 +372,15 @@ class systemhandler:
                                                     self.medium_icon)  # location, size
             #Text
             minerswelcome = ['Welcome to the Miner\'s Guild!', 'Spend your shards to upgrade your mining skill']
-            descripts = ['Cute little robot guy','Increase amount of shards mined per click (Costs '+ str(self.minerstrcost)+' Shards)','Add worker (Costs '+str(self.workercost)+' Special Shards)']
-            get_text_box(minerswelcome[0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.65), self.OPAQUERED, horiboxscale=0.09)
+            descripts = ['Cute little robot guy','Increase amount of shards mined per click (Costs '+ str(self.minerstrcost)+' Shards)','Hire worker for passive Shard mining (Costs '+str(self.workercost)+' Special Shards)']
+            get_text_box(minerswelcome[0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.635), self.OPAQUERED, horiboxscale=0.09)
             get_text_box(minerswelcome[1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.72), self.OPAQUERED, horiboxscale=0.09)
             if rects['ShopRobotMiner_rect'].collidepoint(self.mouse_pos):
                 get_text_box(descripts[0], 30 * self.fontscale, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
                          self.OPAQUERED, horiboxscale=0.09)
             if rects['str_up_rect'].collidepoint(self.mouse_pos):
                 get_text_box(descripts[1], 30 * self.fontscale, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
-                             self.OPAQUERED, horiboxscale=0.003)
+                             self.OPAQUERED, horiboxscale=0.09)
             if rects['hire_worker_rect'].collidepoint(self.mouse_pos):
                 get_text_box(descripts[2], 30 * self.fontscale, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
                              self.OPAQUERED, horiboxscale=0.09)
