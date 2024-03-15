@@ -38,7 +38,7 @@ class systemhandler:
         self.BLACK = pygame.Color(0, 0, 0)
         self.OPAQUEBLACK = pygame.Color(0,0,0,140)
         self.RED = pygame.Color(255, 0, 0)
-        self.OPAQUERED = pygame.Color(255,0,0,140)
+        self.OPAQUERED = pygame.Color(255,0,0,160)
         self.GREEN = pygame.Color(0, 255, 0)
         self.BLUE = pygame.Color(0, 0, 255)
         self.LIBLUE = pygame.Color(0, 128, 255)
@@ -354,11 +354,11 @@ class systemhandler:
 
             town_text = ['Back to the mines',"Miner's Guild", 'Strange Tree Building']
             get_text_box(town_text[0], 30 * self.fontscale,
-                         (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.85), self.RED)
+                         (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.85), self.OPAQUERED)
             get_text_box(town_text[1], 30 * self.fontscale,
-                         (self.WINDOW_WIDTH * 0.65, self.WINDOW_HEIGHT * 0.6), self.RED)
+                         (self.WINDOW_WIDTH * 0.65, self.WINDOW_HEIGHT * 0.6), self.OPAQUERED)
             get_text_box(town_text[2], 30 * self.fontscale,
-                         (self.WINDOW_WIDTH * 0.34, self.WINDOW_HEIGHT * 0.6), self.RED)
+                         (self.WINDOW_WIDTH * 0.34, self.WINDOW_HEIGHT * 0.6), self.OPAQUERED)
             return rects
 
         def town_events(rects):
@@ -374,8 +374,8 @@ class systemhandler:
             draw_shardicon()
             rects['corner_location_icon'] = draw_location_icon(self.towniconimage)
 
-            get_text_box(self.minerswelcome[0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.55), self.RED)
-            get_text_box(self.minerswelcome[1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.65), self.RED)
+            get_text_box(self.minerswelcome[0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.55), self.OPAQUERED)
+            get_text_box(self.minerswelcome[1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.65), self.OPAQUERED)
 
             rects['str_up_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.44, self.WINDOW_HEIGHT*0.3), self.medium_icon)  # location, size
             self.screen.blit(self.strength_up_icon, rects['str_up_rect'])
@@ -389,31 +389,31 @@ class systemhandler:
             self.screen.blit(self.ShopRobotMiner_icon, rects['ShopRobotMiner_rect'])
 
             if self.str_up == 1:
-                get_text_box(cost_texts['str_upgrade_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.RED)
+                get_text_box(cost_texts['str_upgrade_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
                 self.timer += 1
                 self.worker_hired = 0
                 if self.timer >= 90:
                     self.str_up, self.timer = 0, 0
             elif self.str_up == 2:
-                get_text_box(cost_texts['str_upgrade_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.RED)
+                get_text_box(cost_texts['str_upgrade_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
                 self.timer += 1
                 if self.timer >= 90:
                     self.str_up, self.timer = 0, 0
             if self.worker_hired == 1:
-                get_text_box(cost_texts['worker_hired_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.RED)
+                get_text_box(cost_texts['worker_hired_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
                 self.timer += 1
                 self.str_up = 0
                 if self.timer >= 90:
                     self.worker_hired, self.timer = 0, 0
             elif self.worker_hired == 2:
-                get_text_box(cost_texts['worker_hired_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.RED)
+                get_text_box(cost_texts['worker_hired_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
                 self.timer += 1
                 self.str_up = 0
                 if self.timer >= 90:
                     self.worker_hired, self.timer = 0, 0
             elif self.worker_hired == 3:
                 get_text_box(cost_texts['worker_hired_text'][2], 30 * self.fontscale,
-                             (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.25), self.RED)
+                             (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.25), self.OPAQUERED)
                 self.timer += 1
                 self.str_up = 0
                 if self.timer >= 90:
