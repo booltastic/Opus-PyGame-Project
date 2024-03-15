@@ -29,16 +29,19 @@ class systemhandler:
         self.FPS = 30
         self.timecounter = 0
         self.counter = 0  # play time
+        self.thirdFPS = 0
         self.timer = 0
 
         # Set Colors
-        self.CLEAR = (0, 0, 0, 0)
-        self.WHITE = (255, 255, 255)
-        self.BLACK = (0, 0, 0)
-        self.RED = (255, 0, 0)
-        self.GREEN = (0, 255, 0)
-        self.BLUE = (0, 0, 255)
-        self.LIBLUE = (0, 128, 255)
+        self.CLEAR = pygame.Color(0, 0, 0, 0)
+        self.WHITE = pygame.Color(255, 255, 255)
+        self.BLACK = pygame.Color(0, 0, 0)
+        self.OPAQUEBLACK = pygame.Color(0,0,0,140)
+        self.RED = pygame.Color(255, 0, 0)
+        self.OPAQUERED = pygame.Color(255,0,0,140)
+        self.GREEN = pygame.Color(0, 255, 0)
+        self.BLUE = pygame.Color(0, 0, 255)
+        self.LIBLUE = pygame.Color(0, 128, 255)
 
         # Global Variables
         self.titlestring = 'The Clicker Game'
@@ -74,7 +77,7 @@ class systemhandler:
         self.newgametext = ['Load saved game?', 'New Game', 'Load Game']
 
         # Pre-Determined Locations For Repeat Items
-        self.Text_Location_Center = (self.WINDOW_WIDTH*0.5 , self.WINDOW_HEIGHT*0.7)
+        self.Text_Location_Center = (self.WINDOW_WIDTH*0.5 , self.WINDOW_HEIGHT*0.73)
         self.Text_Location_Left = (self.WINDOW_WIDTH*0.22, self.WINDOW_HEIGHT*0.7)
         self.Text_Location_Right = (self.WINDOW_WIDTH*0.78, self.WINDOW_HEIGHT*0.76)
         self.tuttext_locations = [self.Text_Location_Center,
@@ -86,6 +89,7 @@ class systemhandler:
         self.screen_center = (self.WINDOW_WIDTH//2, self.WINDOW_HEIGHT//2)
         self.small_icon = (self.WINDOW_HEIGHT*0.15,self.WINDOW_HEIGHT*0.15)
         self.medium_icon = (self.WINDOW_HEIGHT*0.2,self.WINDOW_HEIGHT*0.2)
+        self.large_icon = ((self.WINDOW_HEIGHT*0.5,self.WINDOW_HEIGHT*0.5))
 
         # Background Images
         self.quainttownimage = pygame.image.load('QuaintTownSquare.png')
@@ -96,11 +100,24 @@ class systemhandler:
         self.towniconimage = pygame.image.load('TownIcon.png')
         self.towniconimage = pygame.transform.scale(self.towniconimage, (self.small_icon))
 
+        self.treebuildingicon = pygame.image.load('TreeBuilding.png')
+        self.treebuildingicon = pygame.transform.scale(self.treebuildingicon, (self.small_icon))
+
         self.level1minesceneimageicon = pygame.image.load('RockyMineLevel1.png')
         self.level1minesceneimageicon = pygame.transform.scale(self.level1minesceneimageicon, (self.small_icon))
 
-        self.glowingrockicon = pygame.image.load('GlowingRockIcon.png')
+        self.glowingrockicon = pygame.image.load('IsolatedGlowingRockIcon.png')
         self.glowingrockicon = pygame.transform.scale(self.glowingrockicon, (self.medium_icon))
+
+        self.glowingrockicon2 = pygame.image.load('DarkenedIsolatedGlowingRockIcon.png')
+        self.glowingrockicon2 = pygame.transform.scale(self.glowingrockicon2, (self.medium_icon))
+
+        self.background_glow_icon1 = pygame.image.load('GlowingLight.png')
+        self.background_glow_icon1 = pygame.transform.scale(self.background_glow_icon1, (self.large_icon))
+        self.background_glow_icon2 = pygame.image.load('GlowingLight - Rotated1.png')
+        self.background_glow_icon2 = pygame.transform.scale(self.background_glow_icon2, (self.large_icon))
+        self.background_glow_icon3 = pygame.image.load('GlowingLight - Rotated2.png')
+        self.background_glow_icon3 = pygame.transform.scale(self.background_glow_icon3, (self.large_icon))
 
         self.minersguildicon = pygame.image.load('MinersGuildLogo.png')
         self.minersguildicon = pygame.transform.scale(self.minersguildicon, (self.small_icon))
@@ -116,6 +133,7 @@ class systemhandler:
 
         def game_timer():
             self.counter += 1
+            self.thirdFPS += 1/3
 
         # Drawing scene backgrounds
         def draw_background(locationimage):
@@ -174,57 +192,69 @@ class systemhandler:
 
         def draw_shardicon():
             # Shards
-            totalmined_font = pygame.font.Font(None, 35*self.fontscale)
             totalmined_string = 'Total Shards Mined: ' + str(int(self.totalmined))
-            totalmined_text = totalmined_font.render(totalmined_string, True, self.WHITE)
-            totalminedrect = totalmined_text.get_rect(midleft=(self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.05))
-            self.screen.blit(totalmined_text, totalminedrect)
+            get_text_box(totalmined_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.05), self.OPAQUEBLACK, 'left', 1)
 
-            # Shards
-            shard_font = pygame.font.Font(None, 35*self.fontscale)
             shard_string = 'Shards: ' + str(int(self.shard))
-            shard_text = shard_font.render(shard_string, True, self.WHITE)
-            shardrect = shard_text.get_rect(midleft=(self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.8))
-            self.screen.blit(shard_text, shardrect)
+            get_text_box(shard_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.8), self.OPAQUEBLACK, 'left',0)
 
             # Special Shards
-            sshard_font = pygame.font.Font(None, 35*self.fontscale)
             sshard_string = 'Special Shards: ' + str(int(self.sshard))
-            sshard_text = sshard_font.render(sshard_string, True, self.WHITE)
-            sshardrect = sshard_text.get_rect(midleft=(self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.85))
-            self.screen.blit(sshard_text, sshardrect)
+            get_text_box(sshard_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.85), self.OPAQUEBLACK, 'left',0)
 
             # Workers
-            worker_font = pygame.font.Font(None, 35 * self.fontscale)
             worker_string = 'Workers: ' + str(int(self.workers))
-            worker_text = worker_font.render(worker_string, True, self.WHITE)
-            workerrect = worker_text.get_rect(midleft=(self.WINDOW_WIDTH * 0.0175, self.WINDOW_HEIGHT * 0.9))
-            self.screen.blit(worker_text, workerrect)
+            get_text_box(worker_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.9), self.OPAQUEBLACK, 'left',0)
 
             # Mining Strength
-            minestr_font = pygame.font.Font(None, 35 * self.fontscale)
             minestr_string = 'Mining Strength: ' + str(int(self.minerstr))
-            minestr_text = minestr_font.render(minestr_string, True, self.WHITE)
-            minestrrect = minestr_text.get_rect(midleft=(self.WINDOW_WIDTH * 0.0175, self.WINDOW_HEIGHT * 0.95))
-            self.screen.blit(minestr_text, minestrrect)
+            get_text_box(minestr_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.95), self.OPAQUEBLACK, 'left',0)
 
         def draw_mainclicktarget():
+            timer = int(self.counter/3)
+            for i in range(0,1):
+                if timer % 3 == i:
+                    glowing_background_rect = self.background_glow_icon1.get_rect(center=self.screen_center)
+                    self.screen.blit(self.background_glow_icon1, glowing_background_rect)
+            for i in range(1,2):
+                if timer % 3 == i:
+                    glowing_background_rect = self.background_glow_icon2.get_rect(center=self.screen_center)
+                    self.screen.blit(self.background_glow_icon2, glowing_background_rect)
+            for i in range(2,3):
+                if timer % 3 == i:
+                    glowing_background_rect = self.background_glow_icon3.get_rect(center=self.screen_center)
+                    self.screen.blit(self.background_glow_icon3, glowing_background_rect)
+
+            mouse_clicked = pygame.mouse.get_pressed()[0]
+            mouse_pos = pygame.mouse.get_pos()
+
             glowingrockicon_rect = self.glowingrockicon.get_rect(center=self.screen_center)
-            self.screen.blit(self.glowingrockicon, glowingrockicon_rect)
+            if mouse_clicked and glowingrockicon_rect.collidepoint(mouse_pos):
+                self.screen.blit(self.glowingrockicon2, glowingrockicon_rect)
+            else:
+                self.screen.blit(self.glowingrockicon, glowingrockicon_rect)
             return glowingrockicon_rect
 
-        def get_text_box(drawntext, fontsize, textlocation, color):  # made for rects loops
+        def get_text_box(drawntext, fontsize, textlocation, color, alignment='center',boxscale=float(1)):  # made for rects loops
             boxtext = drawntext
             boxtextfont = pygame.font.Font(None, fontsize)
             renderedtext = boxtextfont.render(str(boxtext), True, self.WHITE)  # renders text image
-            colliderect = renderedtext.get_rect(
-                center=textlocation)  # create rect the size of the text at chosen location. sets ratio of size, and where we want the center
+            if alignment == 'left':
+                colliderect = renderedtext.get_rect(
+                    midleft=textlocation)  # create rect the size of the text at chosen location. sets ratio of size, and where we want the center
+            else:
+                colliderect = renderedtext.get_rect(
+                    center=textlocation)
             colliderect = colliderect.inflate(colliderect.width * 0.15,
-                                              colliderect.height)  # inflate that rect in place to twice its size, this is what gets clicked
-            pygame.draw.rect(self.screen, color,
-                             colliderect)  # draws the rect renderedrect, this cannot be passed to collidepoint though (just drawing it)
+                                              colliderect.height*boxscale)  # inflate that rect in place to twice its size, this is what gets clicked
+            # pygame.draw.rect(self.screen, color,
+            #                  colliderect)  # draws the rect renderedrect, this cannot be passed to collidepoint though (just drawing it)
             renderedtextrect = renderedtext.get_rect(
-                center=colliderect.center)  # this rect is creating a text sized rect and placing it at the center of the big rect, so its already centered. used for collide and blit. if blit
+                center=colliderect.center)  # this rect is creating a text sized rect and placing it at the center of the big rect, so its already centered.
+            surface=pygame.Surface(colliderect.size,pygame.SRCALPHA)
+            pygame.draw.rect(surface, color,
+                             surface.get_rect())
+            self.screen.blit(surface,colliderect)
             self.screen.blit(renderedtext, renderedtextrect)
             return colliderect  # if applicable. only used if you need to click it
 
@@ -276,11 +306,11 @@ class systemhandler:
         def tutorial_rects_and_images():  # where basically everything is drawn and established
             rects = {}
             draw_background(self.level1minesceneimage)
-            if self.promptnumber < len(self.tuttext):
-                get_text_box(self.tuttext[self.promptnumber], 40*self.fontscale, self.tuttext_locations[self.promptnumber], self.RED)
             draw_shardicon()
-            draw_location_icon(self.towniconimage)
             draw_mainclicktarget()
+            if self.promptnumber < len(self.tuttext):
+                get_text_box(self.tuttext[self.promptnumber], 40*self.fontscale, self.tuttext_locations[self.promptnumber], self.OPAQUERED)
+            draw_location_icon(self.towniconimage)
             rects['next_button'] = draw_next_button()
             return rects
 
@@ -308,14 +338,31 @@ class systemhandler:
             rects = {}
             draw_background(self.quainttownimage)
             draw_shardicon()
-            rects['corner_location_icon'] = draw_location_icon(self.level1minesceneimageicon)
-            rects['minersguild_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.6, self.WINDOW_HEIGHT*0.5),
+
+            #rects['corner_location_icon'] = draw_location_icon(self.quainttownimage)
+            rects['minersguild_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.6, self.WINDOW_HEIGHT*0.4),
                                                     (self.small_icon))  # location, size
             self.screen.blit(self.minersguildicon, rects['minersguild_rect'])
+
+            rects['level1mine_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.45, self.WINDOW_HEIGHT*0.65),
+                                                    (self.small_icon))  # location, size
+            self.screen.blit(self.level1minesceneimageicon, rects['level1mine_rect'])
+
+            rects['treebuilding_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.3, self.WINDOW_HEIGHT*0.4),
+                                                    (self.small_icon))  # location, size
+            self.screen.blit(self.treebuildingicon, rects['treebuilding_rect'])
+
+            town_text = ['Back to the mines',"Miner's Guild", 'Strange Tree Building']
+            get_text_box(town_text[0], 30 * self.fontscale,
+                         (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.85), self.RED)
+            get_text_box(town_text[1], 30 * self.fontscale,
+                         (self.WINDOW_WIDTH * 0.65, self.WINDOW_HEIGHT * 0.6), self.RED)
+            get_text_box(town_text[2], 30 * self.fontscale,
+                         (self.WINDOW_WIDTH * 0.34, self.WINDOW_HEIGHT * 0.6), self.RED)
             return rects
 
         def town_events(rects):
-            if rects['corner_location_icon'].collidepoint(event.pos):
+            if rects['level1mine_rect'].collidepoint(event.pos):
                 change_state('MINELEVEL1')
             if rects['minersguild_rect'].collidepoint(event.pos):
                 change_state('MINERSGUILD')
@@ -426,7 +473,7 @@ class systemhandler:
                     elif self.state == 'MINERSGUILD':
                         miners_guild_events(rects)
             # Clear the screen
-            self.screen.fill(self.CLEAR)  # Passively fills all blank space. Catch-all just in case
+            self.screen.fill(self.BLACK)  # Passively fills all blank space. Catch-all just in case
 
             # Event handling
             game_timer()  # total frame number
