@@ -97,43 +97,37 @@ class systemhandler:
         self.minersguildimage = pygame.image.load('MinersGuildInterior.png')
 
         # Icon Images
-        self.towniconimage = pygame.image.load('TownIcon.png')
-        self.towniconimage = pygame.transform.scale(self.towniconimage, (self.small_icon))
+        def load_img(imagefile, size):
+            imageicon = pygame.image.load(imagefile)
+            imageicon = pygame.transform.scale(imageicon, (size))
+            return imageicon
 
-        self.treebuildingicon = pygame.image.load('TreeBuilding.png')
-        self.treebuildingicon = pygame.transform.scale(self.treebuildingicon, (self.small_icon))
+        self.towniconimage = load_img('TownIcon.png',self.small_icon)
+        self.treebuildingicon = load_img('TreeBuilding.png', self.medium_icon)
+        self.level1minesceneimageicon = load_img('RockyMineLevel1.png', self.medium_icon)
+        self.glowingrockicon = load_img('IsolatedGlowingRockIcon.png', self.small_icon)
+        self.glowingrockicon2 = load_img('DarkenedIsolatedGlowingRockIcon.png', self.small_icon)
+        self.minersguildicon = load_img('MinersGuildLogo.png', self.medium_icon)
+        self.strength_up_icon = load_img('StrengthUpImage.png', self.medium_icon)
+        self.darkenedstrength_up_icon = load_img('DarkenedStrengthUpImage.png', self.medium_icon)
+        self.hire_worker_icon = load_img('HireWorkerIcon.png', self.medium_icon)
+        self.darkenedhire_worker_icon = load_img('DarkenedHireWorkerIcon.png', self.medium_icon)
+        self.ShopRobotMiner_icon = load_img('ShopRobotMiner.jpg', self.medium_icon)
+        self.DarkenedShopRobotMiner_icon = load_img('DarkenedShopRobotMiner.jpg', self.medium_icon)
+        self.background_glow_icon1 = load_img('GlowingLight.png', self.large_icon)
+        self.background_glow_icon2 = load_img('GlowingLight - Rotated1.png', self.large_icon)
+        self.background_glow_icon3 = load_img('GlowingLight - Rotated2.png', self.large_icon)
 
-        self.level1minesceneimageicon = pygame.image.load('RockyMineLevel1.png')
-        self.level1minesceneimageicon = pygame.transform.scale(self.level1minesceneimageicon, (self.small_icon))
-
-        self.glowingrockicon = pygame.image.load('IsolatedGlowingRockIcon.png')
-        self.glowingrockicon = pygame.transform.scale(self.glowingrockicon, (self.medium_icon))
-
-        self.glowingrockicon2 = pygame.image.load('DarkenedIsolatedGlowingRockIcon.png')
-        self.glowingrockicon2 = pygame.transform.scale(self.glowingrockicon2, (self.medium_icon))
-
-        self.background_glow_icon1 = pygame.image.load('GlowingLight.png')
-        self.background_glow_icon1 = pygame.transform.scale(self.background_glow_icon1, (self.large_icon))
-        self.background_glow_icon2 = pygame.image.load('GlowingLight - Rotated1.png')
-        self.background_glow_icon2 = pygame.transform.scale(self.background_glow_icon2, (self.large_icon))
-        self.background_glow_icon3 = pygame.image.load('GlowingLight - Rotated2.png')
-        self.background_glow_icon3 = pygame.transform.scale(self.background_glow_icon3, (self.large_icon))
-
-        self.minersguildicon = pygame.image.load('MinersGuildLogo.png')
-        self.minersguildicon = pygame.transform.scale(self.minersguildicon, (self.small_icon))
-
-        self.strength_up_icon = pygame.image.load('StrengthUpImage.png')
-        self.strength_up_icon = pygame.transform.scale(self.strength_up_icon, (self.medium_icon))
-
-        self.hire_worker_icon = pygame.image.load('HireWorkerIcon.png')
-        self.hire_worker_icon = pygame.transform.scale(self.hire_worker_icon, (self.medium_icon))
-
-        self.ShopRobotMiner_icon = pygame.image.load('ShopRobotMiner.jpg')
-        self.ShopRobotMiner_icon = pygame.transform.scale(self.ShopRobotMiner_icon, (self.medium_icon))
+        def darken_on_click(rect, icon, darkenedicon):
+            mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
+            mouse_pos = pygame.mouse.get_pos()
+            if mouse_clicked and rect.collidepoint(mouse_pos):
+                self.screen.blit(darkenedicon, rect)
+            else:
+                self.screen.blit(icon, rect)
 
         def game_timer():
             self.counter += 1
-            self.thirdFPS += 1/3
 
         # Drawing scene backgrounds
         def draw_background(locationimage):
@@ -196,19 +190,19 @@ class systemhandler:
             get_text_box(totalmined_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.05), self.OPAQUEBLACK, 'left', 1)
 
             shard_string = 'Shards: ' + str(int(self.shard))
-            get_text_box(shard_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.8), self.OPAQUEBLACK, 'left',0)
+            get_text_box(shard_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.8), self.OPAQUEBLACK, 'left',0.1)
 
             # Special Shards
             sshard_string = 'Special Shards: ' + str(int(self.sshard))
-            get_text_box(sshard_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.85), self.OPAQUEBLACK, 'left',0)
+            get_text_box(sshard_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.85), self.OPAQUEBLACK, 'left',0.1)
 
             # Workers
             worker_string = 'Workers: ' + str(int(self.workers))
-            get_text_box(worker_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.9), self.OPAQUEBLACK, 'left',0)
+            get_text_box(worker_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.9), self.OPAQUEBLACK, 'left',0.1)
 
             # Mining Strength
             minestr_string = 'Mining Strength: ' + str(int(self.minerstr))
-            get_text_box(minestr_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.95), self.OPAQUEBLACK, 'left',0)
+            get_text_box(minestr_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.95), self.OPAQUEBLACK, 'left',0.1)
 
         def draw_mainclicktarget():
             timer = int(self.counter/3)
@@ -225,14 +219,9 @@ class systemhandler:
                     glowing_background_rect = self.background_glow_icon3.get_rect(center=self.screen_center)
                     self.screen.blit(self.background_glow_icon3, glowing_background_rect)
 
-            mouse_clicked = pygame.mouse.get_pressed()[0]
-            mouse_pos = pygame.mouse.get_pos()
-
             glowingrockicon_rect = self.glowingrockicon.get_rect(center=self.screen_center)
-            if mouse_clicked and glowingrockicon_rect.collidepoint(mouse_pos):
-                self.screen.blit(self.glowingrockicon2, glowingrockicon_rect)
-            else:
-                self.screen.blit(self.glowingrockicon, glowingrockicon_rect)
+            darken_on_click(glowingrockicon_rect, self.glowingrockicon, self.glowingrockicon2)
+
             return glowingrockicon_rect
 
         def get_text_box(drawntext, fontsize, textlocation, color, alignment='center',boxscale=float(1)):  # made for rects loops
@@ -340,25 +329,25 @@ class systemhandler:
             draw_shardicon()
 
             #rects['corner_location_icon'] = draw_location_icon(self.quainttownimage)
-            rects['minersguild_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.6, self.WINDOW_HEIGHT*0.4),
+            rects['minersguild_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.59, self.WINDOW_HEIGHT*0.34),
                                                     (self.small_icon))  # location, size
             self.screen.blit(self.minersguildicon, rects['minersguild_rect'])
 
-            rects['level1mine_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.45, self.WINDOW_HEIGHT*0.65),
+            rects['level1mine_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.43, self.WINDOW_HEIGHT*0.65),
                                                     (self.small_icon))  # location, size
             self.screen.blit(self.level1minesceneimageicon, rects['level1mine_rect'])
 
-            rects['treebuilding_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.3, self.WINDOW_HEIGHT*0.4),
+            rects['treebuilding_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.266, self.WINDOW_HEIGHT*0.34),
                                                     (self.small_icon))  # location, size
             self.screen.blit(self.treebuildingicon, rects['treebuilding_rect'])
 
             town_text = ['Back to the mines',"Miner's Guild", 'Strange Tree Building']
             get_text_box(town_text[0], 30 * self.fontscale,
-                         (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.85), self.OPAQUERED)
+                         (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.89), self.OPAQUERED)
             get_text_box(town_text[1], 30 * self.fontscale,
-                         (self.WINDOW_WIDTH * 0.65, self.WINDOW_HEIGHT * 0.6), self.OPAQUERED)
+                         (self.WINDOW_WIDTH * 0.66, self.WINDOW_HEIGHT * 0.58), self.OPAQUERED)
             get_text_box(town_text[2], 30 * self.fontscale,
-                         (self.WINDOW_WIDTH * 0.34, self.WINDOW_HEIGHT * 0.6), self.OPAQUERED)
+                         (self.WINDOW_WIDTH * 0.34, self.WINDOW_HEIGHT * 0.58), self.OPAQUERED)
             return rects
 
         def town_events(rects):
@@ -378,15 +367,13 @@ class systemhandler:
             get_text_box(self.minerswelcome[1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.65), self.OPAQUERED)
 
             rects['str_up_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.44, self.WINDOW_HEIGHT*0.3), self.medium_icon)  # location, size
-            self.screen.blit(self.strength_up_icon, rects['str_up_rect'])
-
             rects['hire_worker_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.68, self.WINDOW_HEIGHT*0.3),
                                                     self.medium_icon)  # location, size
-            self.screen.blit(self.hire_worker_icon, rects['hire_worker_rect'])
-
             rects['ShopRobotMiner_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.2, self.WINDOW_HEIGHT*0.3),
                                                     self.medium_icon)
-            self.screen.blit(self.ShopRobotMiner_icon, rects['ShopRobotMiner_rect'])
+            darken_on_click(rects['str_up_rect'], self.strength_up_icon, self.darkenedstrength_up_icon)
+            darken_on_click(rects['hire_worker_rect'], self.hire_worker_icon, self.darkenedhire_worker_icon)
+            darken_on_click(rects['ShopRobotMiner_rect'], self.ShopRobotMiner_icon, self.DarkenedShopRobotMiner_icon)
 
             if self.str_up == 1:
                 get_text_box(cost_texts['str_upgrade_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
