@@ -62,7 +62,6 @@ class systemhandler:
         self.workers = 0
         self.worker_hired = 0
         self.workerlimit = 10
-        self.savestatelist = [self.totalmined, self.shard, self.sshard, self.workers, self.minerstr]
 
         # Player Inventory
         player_inventory = []
@@ -73,7 +72,7 @@ class systemhandler:
                    'and when your work is done, ', 'return to town here!']
 
         # Pre-Determined Locations For Repeat Items
-        self.Text_Location_Center = (self.WINDOW_WIDTH*0.5 , self.WINDOW_HEIGHT*0.73)
+        self.Text_Location_Center = (self.WINDOW_WIDTH*0.5 , self.WINDOW_HEIGHT*0.7)
         self.Text_Location_Left = (self.WINDOW_WIDTH*0.22, self.WINDOW_HEIGHT*0.7)
         self.Text_Location_Right = (self.WINDOW_WIDTH*0.78, self.WINDOW_HEIGHT*0.76)
         self.tuttext_locations = [self.Text_Location_Center,
@@ -326,42 +325,50 @@ class systemhandler:
         def settings_page():
             draw_background(self.loadgamescreenimage)
             rects={}
-            rects['save_game_rect']=get_text_box('Save Game', 40 * self.fontscale,
-                         (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.3),
-                         self.OPAQUERED)
-            rects['load_game_rect']=get_text_box('Load Game', 40 * self.fontscale,
+            if self.laststate != 'INTRO':
+                rects['save_game_rect']=get_text_box('Save Game', 40 * self.fontscale,
+                             (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.3),
+                             self.OPAQUERED)
+                rects['load_game_rect']=get_text_box('Load Game', 40 * self.fontscale,
+                             (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.5),
+                             self.OPAQUERED)
+                if self.saveprogress == False:
+                    get_text_box('Brooo cmon you just started XD', 40 * self.fontscale,
+                                 (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.8),
+                                 self.OPAQUERED)
+                    self.gamesavesuccessful = False
+                if self.gamesavesuccessful == True:
+                    get_text_box('Game saved successfully', 40 * self.fontscale,
+                                 (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.8),
+                                 self.OPAQUERED)
+                    self.saveprogress = True
+            get_text_box('(more settings will eventually live here)', 40 * self.fontscale,
                          (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.5),
                          self.OPAQUERED)
             rects['back_button'] = draw_back_button()
-            if self.saveprogress == False:
-                get_text_box('Brooo cmon you just started XD', 40 * self.fontscale,
-                             (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.8),
-                             self.OPAQUERED)
-                self.gamesavesuccessful = False
-            if self.gamesavesuccessful == True:
-                get_text_box('Game saved successfully', 40 * self.fontscale,
-                             (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.8),
-                             self.OPAQUERED)
-                self.saveprogress = True
             return rects
 
         def settings_page_events(rects):
-            if rects['load_game_rect'].collidepoint(event.pos):
-                self.saveprogress = True
-                self.gamesavesuccessful = False
-                change_state('LOADGAME')
-            if rects['save_game_rect'].collidepoint(event.pos):
-                savestatelist = self.totalmined, self.shard, self.sshard, self.workers, self.minerstr
-                if savestatelist == (0, 0, 0, 0, 1):
-                    self.saveprogress = False
-                else:
-                    with open('gamesave.txt', 'w') as file:
-                        file.write(str(savestatelist))
-                    self.gamesavesuccessful = True
+            if self.laststate != 'INTRO':
+                if rects['load_game_rect'].collidepoint(event.pos):
+                    self.saveprogress = True
+                    self.gamesavesuccessful = False
+                    change_state('LOADGAME')
+                if rects['save_game_rect'].collidepoint(event.pos):
+                    savestatelist = self.totalmined, self.shard, self.sshard, self.workers, self.minerstr
+                    if savestatelist == (0, 0, 0, 0, 1):
+                        self.saveprogress = False
+                    else:
+                        with open('Saved Game.txt', 'w') as file:
+                            file.write(str(savestatelist))
+                        self.gamesavesuccessful = True
             if rects['back_button'].collidepoint(event.pos):
                 self.saveprogress = True
                 self.gamesavesuccessful = False
-                self.state=self.laststate
+                if self.laststate == 'INTRO':
+                    self.state = 'INTRO'
+                else:
+                    self.state=self.laststate
 
         def loadgame_rects_and_images():
             draw_background(self.loadgamescreenimage)
@@ -369,12 +376,12 @@ class systemhandler:
             rects['back_button'] = draw_back_button()
             files_with_string = []
             for file in os.listdir():
-                if 'gamesave' in file or 'autosave' in file:  # Check if the file is a text file
+                if 'Saved Game' in file or 'Autosaved Game' in file:  # Check if the file is a text file
                     files_with_string.append(file)
             numberoffiles = len(files_with_string)
             if numberoffiles>0:
                 for savefile in files_with_string:
-                    rects[savefile]=get_text_box(savefile, 40 * self.fontscale, (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * (0.3+(int(files_with_string.index(savefile))*0.2))),
+                    rects[savefile]=get_text_box(savefile.split('.txt')[0], 40 * self.fontscale, (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * (0.3+(int(files_with_string.index(savefile))*0.2))),
                          self.OPAQUERED)
             else:
                 get_text_box('No save files found!', 40 * self.fontscale,
@@ -569,7 +576,7 @@ class systemhandler:
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:  # should be the only IF, so the game will always close first. i think
-                    with open('autosave.txt', 'w') as file:
+                    with open('Autosaved Game.txt', 'w') as file:
                         savestatelist = self.totalmined, self.shard, self.sshard, self.workers, self.minerstr
                         file.write(str(savestatelist))
                     running = False
