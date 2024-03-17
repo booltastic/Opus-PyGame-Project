@@ -342,9 +342,10 @@ class systemhandler:
                                  (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.8),
                                  self.OPAQUERED)
                     self.saveprogress = True
-            get_text_box('(more settings will eventually live here)', 40 * self.fontscale,
-                         (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.5),
-                         self.OPAQUERED)
+            if self.laststate == 'INTRO':
+                get_text_box('(more settings will eventually live here)', 40 * self.fontscale,
+                             (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.5),
+                             self.OPAQUERED)
             rects['back_button'] = draw_back_button()
             return rects
 
