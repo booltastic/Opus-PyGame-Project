@@ -17,13 +17,13 @@ class systemhandler:
         screen_res = 'small'
         if screen_res == 'medium':
             self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 1200, 900
-            self.fontscale = int(1.75)
+            self.fontscale = 1.75
         elif screen_res == 'large':
             self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 1600, 1200
-            self.fontscale = int(2.5)
+            self.fontscale = 2.5
         else:
             self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 800, 600
-            self.fontscale = int(1)
+            self.fontscale = 0.7
         self.screen = pygame.display.set_mode((self.WINDOW_WIDTH, self.WINDOW_HEIGHT))
         pygame.display.set_caption("Practice Clicker Game")
         self.clock = pygame.time.Clock()
@@ -58,6 +58,7 @@ class systemhandler:
         self.minerstr = 1
         self.minerstrcost = 0
         self.str_up = 0
+        self.good_click = 0
         self.workercost = 0
         self.workers = 0
         self.worker_hired = 0
@@ -66,21 +67,11 @@ class systemhandler:
         # Player Inventory
         player_inventory = []
 
-        # Game Text
-        self.tuttext = ['Welcome to the Mines of Esswun, kid!', 'We need you to mine these blue shards.',"Don't ask questions. Just mine!",
-                   'Your loot is shown here',
-                   'and when your work is done, ', 'return to town here!']
-
         # Pre-Determined Locations For Repeat Items
+        self.Text_Location_TalkCenter = (self.WINDOW_WIDTH * 0.35, self.WINDOW_HEIGHT * 0.755)
         self.Text_Location_Center = (self.WINDOW_WIDTH*0.5 , self.WINDOW_HEIGHT*0.7)
         self.Text_Location_Left = (self.WINDOW_WIDTH*0.22, self.WINDOW_HEIGHT*0.7)
         self.Text_Location_Right = (self.WINDOW_WIDTH*0.78, self.WINDOW_HEIGHT*0.76)
-        self.tuttext_locations = [self.Text_Location_Center,
-                             self.Text_Location_Center,
-                             self.Text_Location_Center,
-                             self.Text_Location_Left,
-                             self.Text_Location_Center,
-                             self.Text_Location_Right]
         self.screen_center = (self.WINDOW_WIDTH//2, self.WINDOW_HEIGHT//2)
         self.mini_icon = (self.WINDOW_HEIGHT*0.1,self.WINDOW_HEIGHT*0.1)
         self.small_icon = (self.WINDOW_HEIGHT*0.15,self.WINDOW_HEIGHT*0.15)
@@ -93,6 +84,8 @@ class systemhandler:
         self.level1minesceneimage = pygame.image.load('RockyMineLevel1.png')
         self.minersguildimage = pygame.image.load('MinersGuildInterior.png')
         self.loadgamescreenimage = pygame.image.load('LoadGameScreen.jpg')
+        self.backpackscreenimage = pygame.image.load('Backpack_Background_Image.jpg')
+        self.stats_page_image = pygame.image.load('Statistic_Background_Image.jpg')
 
         # Icon Images
         def load_img(imagefile, size):
@@ -116,6 +109,9 @@ class systemhandler:
         self.background_glow_icon2 = load_img('GlowingLight - Rotated1.png', self.large_icon)
         self.background_glow_icon3 = load_img('GlowingLight - Rotated2.png', self.large_icon)
         self.settings_icon = load_img('SettingsIcon2.png',self.mini_icon)
+        self.stats_icon = load_img('StatisticIcon.jpg',self.small_icon)
+        self.backpack_icon = load_img('BackpackImage.jpg',self.small_icon)
+        self.robot_boss_image = load_img('RobotBossImage.jpg', self.small_icon)
         self.mouse_clicked = pygame.mouse.get_pressed()[0]  # check once for happy mouse status function
         self.mouse_pos = pygame.mouse.get_pos()
 
@@ -141,14 +137,14 @@ class systemhandler:
         #Draw settings icon
         def draw_settings_icon():
             if self.counter>60:
-                settings_rect = self.settings_icon.get_rect(center=(self.WINDOW_WIDTH * 0.95, self.WINDOW_HEIGHT * 0.065))
+                settings_rect = self.settings_icon.get_rect(center=(self.WINDOW_WIDTH * 0.937, self.WINDOW_HEIGHT * 0.065))
                 self.screen.blit(self.settings_icon, settings_rect)
                 return settings_rect
 
         # Next Button
         def draw_next_button():
             nextbuttontext = 'Next'
-            nexttext_font = pygame.font.Font(None, 40*self.fontscale)
+            nexttext_font = pygame.font.Font(None, int(40*self.fontscale))
             nextbuttonstring = nexttext_font.render(str(nextbuttontext), True, self.WHITE)  # rendering text as object/image
             nextbutton_rect = nextbuttonstring.get_rect(
                 center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT*0.92))  # gets rect of the text shape, placed at a location
@@ -161,24 +157,44 @@ class systemhandler:
 
         def draw_back_button():
             backbuttontext = 'Back'
-            nexttext_font = pygame.font.Font(None, 40*self.fontscale)
+            nexttext_font = pygame.font.Font(None, int(40*self.fontscale))
             nextbuttonstring = nexttext_font.render(str(backbuttontext), True, self.WHITE)  # rendering text as object/image
-            nextbutton_rect = nextbuttonstring.get_rect(
+            backbutton_rect = nextbuttonstring.get_rect(
                 center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT*0.92))  # gets rect of the text shape, placed at a location
-            nextbutton_rect = nextbutton_rect.inflate(nextbutton_rect.width * 1.2,
-                                                      nextbutton_rect.height * 1.2)  # inflated to clickable size
-            buttontextspot = nextbuttonstring.get_rect(center=nextbutton_rect.center)
-            pygame.draw.rect(self.screen, self.BLUE, nextbutton_rect)  # draw rect
+            backbutton_rect = backbutton_rect.inflate(backbutton_rect.width * 1.2,
+                                                      backbutton_rect.height * 1.2)  # inflated to clickable size
+            buttontextspot = nextbuttonstring.get_rect(center=backbutton_rect.center)
+            pygame.draw.rect(self.screen, self.BLUE, backbutton_rect)  # draw rect
             self.screen.blit(nextbuttonstring, buttontextspot)  # draw next text
-            return nextbutton_rect
+            return backbutton_rect
 
         # Drawing location icons
         def draw_location_icon(locationiconimage):
             icon_rect = pygame.Rect((self.WINDOW_WIDTH*0.8822, self.WINDOW_HEIGHT*0.843), (self.small_icon))  # location, size
-            pygame.draw.rect(self.screen, self.CLEAR, icon_rect)  # draw it. currently drawn off screen (beside background)
             return_icon_image = pygame.transform.scale(locationiconimage, (self.small_icon))
             self.screen.blit(return_icon_image, icon_rect)
             return icon_rect
+
+        def draw_speaker_icon(speakerimage):
+            speaker_rect = pygame.Rect((self.WINDOW_WIDTH * 0.22, self.WINDOW_HEIGHT * 0.68),
+                                        (self.small_icon))  # location, size
+            speaker_icon_image = pygame.transform.scale(speakerimage, (self.small_icon))
+            self.screen.blit(speaker_icon_image, speaker_rect)
+
+        def draw_packpack_icon():
+            if self.state not in ('INTRO', 'SETTINGS', 'LOADGAME'):
+                backpack_rect = pygame.Rect((self.WINDOW_WIDTH * 0.006, self.WINDOW_HEIGHT * 0.68),(self.small_icon))  # location, size
+                backpack_icon_image = pygame.transform.scale(self.backpack_icon, (self.small_icon))
+                self.screen.blit(backpack_icon_image, backpack_rect)
+                return backpack_rect
+
+        def draw_stats_icon():
+            if self.state not in ('INTRO', 'SETTINGS', 'LOADGAME'):
+                statistics_rect = pygame.Rect((self.WINDOW_WIDTH * 0.006, self.WINDOW_HEIGHT * 0.84),
+                                        (self.small_icon))  # location, size
+                statistics_icon_image = pygame.transform.scale(self.stats_icon, (self.small_icon))
+                self.screen.blit(statistics_icon_image, statistics_rect)
+                return statistics_rect
 
         # Make shard
         def make_click_shard():
@@ -210,25 +226,26 @@ class systemhandler:
                                                'Not enough Special Shards!', 'Worker limit reached (Current limit '+str(self.workerlimit) + ')']
             return cost_texts
 
-        def draw_shardicon():
-            # Shards
-            totalmined_string = 'Total Shards Mined: ' + str(int(self.totalmined))
-            get_text_box(totalmined_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.05), self.OPAQUEBLACK, 'left', 1)
-
+        def draw_inventory():
             shard_string = 'Shards: ' + str(int(self.shard))
-            get_text_box(shard_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.8), self.OPAQUEBLACK, 'left',0.1)
+            get_text_box(shard_string, 35, (self.WINDOW_WIDTH*0.5, self.WINDOW_HEIGHT*0.5), self.BLACK, 'center',1)
 
             # Special Shards
             sshard_string = 'Special Shards: ' + str(int(self.sshard))
-            get_text_box(sshard_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.85), self.OPAQUEBLACK, 'left',0.1)
+            get_text_box(sshard_string, 35, (self.WINDOW_WIDTH*0.5, self.WINDOW_HEIGHT*0.6), self.BLACK, 'center',1)
 
-            # Workers
+        def draw_statistics():
+            #Shards
+            totalmined_string = 'Total Shards Mined: ' + str(int(self.totalmined))
+            get_text_box(totalmined_string, 35, (self.WINDOW_WIDTH*0.5, self.WINDOW_HEIGHT*0.4), self.BLACK, 'center', 1)
+
+            # # Workers
             worker_string = 'Workers: ' + str(int(self.workers))
-            get_text_box(worker_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.9), self.OPAQUEBLACK, 'left',0.1)
-
-            # Mining Strength
+            get_text_box(worker_string, 35, (self.WINDOW_WIDTH*0.5, self.WINDOW_HEIGHT*0.5), self.BLACK, 'center',1)
+            #
+            # # Mining Strength
             minestr_string = 'Mining Strength: ' + str(int(self.minerstr))
-            get_text_box(minestr_string, 35*self.fontscale, (self.WINDOW_WIDTH*0.0175, self.WINDOW_HEIGHT*0.95), self.OPAQUEBLACK, 'left',0.1)
+            get_text_box(minestr_string, 35, (self.WINDOW_WIDTH*0.5, self.WINDOW_HEIGHT*0.6), self.BLACK, 'center',1)
 
         def draw_mainclicktarget():
             get_mouse_status()
@@ -253,7 +270,7 @@ class systemhandler:
 
         def get_text_box(drawntext, fontsize, textlocation, color, alignment='center',vertboxscale=float(1), horiboxscale=float(0.15)):  # made for rects loops
             boxtext = drawntext
-            boxtextfont = pygame.font.Font(None, fontsize)
+            boxtextfont = pygame.font.Font(None, int(fontsize*(self.fontscale)))
             renderedtext = boxtextfont.render(str(boxtext), True, self.WHITE)  # renders text image
             if alignment == 'left':
                 colliderect = renderedtext.get_rect(
@@ -276,7 +293,7 @@ class systemhandler:
 
         ### SCENES ###
         def change_state(new_state):
-            if self.state != 'LOADGAME' and self.state != 'SETTINGS':
+            if self.state not in ('LOADGAME','SETTINGS','BACKPACK','STATISTICS'):
                 self.laststate = self.state
             self.state = new_state
 
@@ -295,6 +312,10 @@ class systemhandler:
                 return town_rects_and_images()
             if sceneinput == 'MINERSGUILD':
                 return miners_guild_rects_and_images()
+            if sceneinput == 'BACKPACK':
+                return backpack_rects_and_images()
+            if sceneinput == 'STATISTICS':
+                return statistics_rects_and_images()
 
         def intro_rects_and_images():
             rects = {}
@@ -309,9 +330,9 @@ class systemhandler:
             background_rect = background_image.get_rect(center=(self.WINDOW_WIDTH / 2, HEIGHT))
             self.screen.blit(background_image, background_rect)
             if timer > 60:
-                get_text_box(introstring,50*self.fontscale,(self.WINDOW_WIDTH/2, self.WINDOW_HEIGHT*0.23), self.OPAQUERED)
-                rects['new_game_rect'] = get_text_box(newgametext[0], 50*self.fontscale, (self.WINDOW_WIDTH*0.35, self.WINDOW_HEIGHT*0.53), self.BLUE)
-                rects['load_game_rect'] = get_text_box(newgametext[1], 50*self.fontscale, (self.WINDOW_WIDTH*0.65, self.WINDOW_HEIGHT*0.53), self.BLUE)
+                get_text_box(introstring,50,(self.WINDOW_WIDTH/2, self.WINDOW_HEIGHT*0.23), self.OPAQUERED)
+                rects['new_game_rect'] = get_text_box(newgametext[0], 50, (self.WINDOW_WIDTH*0.35, self.WINDOW_HEIGHT*0.53), self.BLUE)
+                rects['load_game_rect'] = get_text_box(newgametext[1], 50, (self.WINDOW_WIDTH*0.65, self.WINDOW_HEIGHT*0.53), self.BLUE)
             return rects
 
         def intro_events(rects):
@@ -322,28 +343,50 @@ class systemhandler:
                 if rects['load_game_rect'].collidepoint(event.pos):
                     change_state('LOADGAME')
 
+        def statistics_rects_and_images():
+            rects = {}
+            draw_background(self.stats_page_image)
+            draw_statistics()
+            rects['back_button']=draw_back_button()
+            return rects
+
+        def statistics_events(rects):
+            if rects['back_button'].collidepoint(event.pos):
+                self.state=self.laststate
+
+        def backpack_rects_and_images():
+            rects = {}
+            draw_background(self.backpackscreenimage)
+            draw_inventory()
+            rects['back_button'] = draw_back_button()
+            return rects
+
+        def backpack_events(rects):
+            if rects['back_button'].collidepoint(event.pos):
+                self.state=self.laststate
+
         def settings_page():
             draw_background(self.loadgamescreenimage)
             rects={}
             if self.laststate != 'INTRO':
-                rects['save_game_rect']=get_text_box('Save Game', 40 * self.fontscale,
+                rects['save_game_rect']=get_text_box('Save Game', 40,
                              (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.3),
                              self.OPAQUERED)
-                rects['load_game_rect']=get_text_box('Load Game', 40 * self.fontscale,
+                rects['load_game_rect']=get_text_box('Load Game', 40,
                              (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.5),
                              self.OPAQUERED)
                 if self.saveprogress == False:
-                    get_text_box('Brooo cmon you just started XD', 40 * self.fontscale,
+                    get_text_box('Brooo cmon you just started XD', 40,
                                  (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.8),
                                  self.OPAQUERED)
                     self.gamesavesuccessful = False
                 if self.gamesavesuccessful == True:
-                    get_text_box('Game saved successfully', 40 * self.fontscale,
+                    get_text_box('Game saved successfully', 40,
                                  (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.8),
                                  self.OPAQUERED)
                     self.saveprogress = True
             if self.laststate == 'INTRO':
-                get_text_box('(more settings will eventually live here)', 40 * self.fontscale,
+                get_text_box('(more settings will eventually live here)', 40,
                              (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.5),
                              self.OPAQUERED)
             rects['back_button'] = draw_back_button()
@@ -382,10 +425,10 @@ class systemhandler:
             numberoffiles = len(files_with_string)
             if numberoffiles>0:
                 for savefile in files_with_string:
-                    rects[savefile]=get_text_box(savefile.split('.txt')[0], 40 * self.fontscale, (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * (0.3+(int(files_with_string.index(savefile))*0.2))),
+                    rects[savefile]=get_text_box(savefile.split('.txt')[0], 40, (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * (0.3+(int(files_with_string.index(savefile))*0.2))),
                          self.OPAQUERED)
             else:
-                get_text_box('No save files found!', 40 * self.fontscale,
+                get_text_box('No save files found!', 40,
                              (self.WINDOW_WIDTH / 2, self.WINDOW_HEIGHT * 0.3),
                               self.OPAQUERED)
             return rects
@@ -411,14 +454,35 @@ class systemhandler:
                 else:
                     self.state = 'SETTINGS'
 
+        self.tuttext = ['Welcome to the Mines of Esswun, kid!', 'We need you to mine these blue shards.',
+                        "Don't ask questions. Just mine!",
+                        'Click on that glowing rock over there to mine it!',
+                        'Your shards and other loot will be stored in this bag', 'You can see your stats here',
+                        "When you're done for the day, return to town here",
+                        'Now get mining! We need those shards!']
         def tutorial_rects_and_images():  # where basically everything is drawn and established
             rects = {}
             draw_background(self.level1minesceneimage)
-            draw_shardicon()
             draw_mainclicktarget()
-            if self.promptnumber < len(self.tuttext):
-                get_text_box(self.tuttext[self.promptnumber], 40*self.fontscale, self.tuttext_locations[self.promptnumber], self.OPAQUERED)
             draw_location_icon(self.towniconimage)
+            if self.promptnumber < len(self.tuttext):
+                get_text_box(self.tuttext[self.promptnumber], 40, self.Text_Location_TalkCenter, self.OPAQUERED, horiboxscale=0.1, vertboxscale=3, alignment='left')
+                draw_speaker_icon(self.robot_boss_image)
+                if self.promptnumber == 4:
+                    backpack_rect = pygame.Rect((self.WINDOW_WIDTH * 0.006, self.WINDOW_HEIGHT * 0.63),
+                                                (self.medium_icon))  # location, size
+                    backpack_icon_image = pygame.transform.scale(self.backpack_icon, (self.medium_icon))
+                    self.screen.blit(backpack_icon_image, backpack_rect)
+                if self.promptnumber == 5:
+                    statistics_rect = pygame.Rect((self.WINDOW_WIDTH * 0.006, self.WINDOW_HEIGHT * 0.79),
+                                                  (self.medium_icon))  # location, size
+                    statistics_icon_image = pygame.transform.scale(self.stats_icon, (self.medium_icon))
+                    self.screen.blit(statistics_icon_image, statistics_rect)
+                if self.promptnumber == 6:
+                    icon_rect = pygame.Rect((self.WINDOW_WIDTH * 0.845, self.WINDOW_HEIGHT * 0.795),
+                                            (self.medium_icon))  # location, size
+                    return_icon_image = pygame.transform.scale(self.towniconimage, (self.medium_icon))
+                    self.screen.blit(return_icon_image, icon_rect)
             rects['next_button'] = draw_next_button()
             return rects
 
@@ -431,21 +495,29 @@ class systemhandler:
         def mine_level_1_rects_and_images():
             rects = {}
             draw_background(self.level1minesceneimage)
-            draw_shardicon()
             rects['mainclicktarget'] = draw_mainclicktarget()
             rects['corner_location_icon'] = draw_location_icon(self.towniconimage)
+            if self.good_click == 1:
+                self.timer += 1
+                get_text_box('Gained shards!', 30,
+                             (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * (0.4-(0.15*(self.timer/60)))), self.OPAQUERED)
+                if self.timer >= 60:
+                    self.timer = 0
+                    self.good_click = 0
             return rects
 
         def mine_level_1_events(rects):
             if rects['corner_location_icon'].collidepoint(event.pos):
+                self.good_click = 0
                 change_state('TOWN')
             if rects['mainclicktarget'].collidepoint(event.pos):
+                self.timer = 0
+                self.good_click = 1
                 make_click_shard()
 
         def town_rects_and_images():
             rects = {}
             draw_background(self.quainttownimage)
-            draw_shardicon()
             rects['minersguild_rect'] = pygame.Rect((self.WINDOW_WIDTH*0.59, self.WINDOW_HEIGHT*0.34),
                                                     (self.medium_icon))  # location, size
             self.screen.blit(self.minersguildicon, rects['minersguild_rect'])
@@ -459,11 +531,11 @@ class systemhandler:
             self.screen.blit(self.treebuildingicon, rects['treebuilding_rect'])
 
             town_text = ['Back to the mines',"Miner's Guild", 'Strange Tree Building']
-            get_text_box(town_text[0], 30 * self.fontscale,
+            get_text_box(town_text[0], 30,
                          (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.89), self.OPAQUERED)
-            get_text_box(town_text[1], 30 * self.fontscale,
+            get_text_box(town_text[1], 30,
                          (self.WINDOW_WIDTH * 0.66, self.WINDOW_HEIGHT * 0.58), self.OPAQUERED)
-            get_text_box(town_text[2], 30 * self.fontscale,
+            get_text_box(town_text[2], 30,
                          (self.WINDOW_WIDTH * 0.34, self.WINDOW_HEIGHT * 0.58), self.OPAQUERED)
             return rects
 
@@ -479,7 +551,6 @@ class systemhandler:
             rects = {}
             cost_texts = get_cost()  # just running get_cost and reading values
             draw_background(self.minersguildimage)
-            draw_shardicon()
 
             #Rects
             rects['corner_location_icon'] = draw_location_icon(self.towniconimage)
@@ -491,16 +562,16 @@ class systemhandler:
             #Text
             minerswelcome = ['Welcome to the Miner\'s Guild!', 'Spend your shards to upgrade your mining skill']
             descripts = ['Cute little robot guy','Increase amount of shards mined per click (Costs '+ str(self.minerstrcost)+' Shards)','Hire worker for passive Shard mining (Costs '+str(self.workercost)+' Special Shards)']
-            get_text_box(minerswelcome[0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.635), self.OPAQUERED, horiboxscale=0.09)
-            get_text_box(minerswelcome[1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.72), self.OPAQUERED, horiboxscale=0.09)
+            get_text_box(minerswelcome[0], 30, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.635), self.OPAQUERED, horiboxscale=0.09)
+            get_text_box(minerswelcome[1], 30, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.72), self.OPAQUERED, horiboxscale=0.09)
             if rects['ShopRobotMiner_rect'].collidepoint(self.mouse_pos):
-                get_text_box(descripts[0], 30 * self.fontscale, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
+                get_text_box(descripts[0], 30, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
                          self.OPAQUERED, horiboxscale=0.09)
             if rects['str_up_rect'].collidepoint(self.mouse_pos):
-                get_text_box(descripts[1], 30 * self.fontscale, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
+                get_text_box(descripts[1], 30, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
                              self.OPAQUERED, horiboxscale=0.09)
             if rects['hire_worker_rect'].collidepoint(self.mouse_pos):
-                get_text_box(descripts[2], 30 * self.fontscale, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
+                get_text_box(descripts[2], 30, (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.55),
                              self.OPAQUERED, horiboxscale=0.09)
 
             #Blits
@@ -509,30 +580,30 @@ class systemhandler:
             darken_on_click(rects['ShopRobotMiner_rect'], self.ShopRobotMiner_icon, self.DarkenedShopRobotMiner_icon)
 
             if self.str_up == 1:
-                get_text_box(cost_texts['str_upgrade_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
+                get_text_box(cost_texts['str_upgrade_text'][0], 30, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
                 self.timer += 1
                 self.worker_hired = 0
                 if self.timer >= 90:
                     self.str_up, self.timer = 0, 0
             elif self.str_up == 2:
-                get_text_box(cost_texts['str_upgrade_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
+                get_text_box(cost_texts['str_upgrade_text'][1], 30, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
                 self.timer += 1
                 if self.timer >= 90:
                     self.str_up, self.timer = 0, 0
             if self.worker_hired == 1:
-                get_text_box(cost_texts['worker_hired_text'][0], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
+                get_text_box(cost_texts['worker_hired_text'][0], 30, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
                 self.timer += 1
                 self.str_up = 0
                 if self.timer >= 90:
                     self.worker_hired, self.timer = 0, 0
             elif self.worker_hired == 2:
-                get_text_box(cost_texts['worker_hired_text'][1], 30*self.fontscale, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
+                get_text_box(cost_texts['worker_hired_text'][1], 30, (self.WINDOW_WIDTH*0.5,self.WINDOW_HEIGHT*0.25), self.OPAQUERED)
                 self.timer += 1
                 self.str_up = 0
                 if self.timer >= 90:
                     self.worker_hired, self.timer = 0, 0
             elif self.worker_hired == 3:
-                get_text_box(cost_texts['worker_hired_text'][2], 30 * self.fontscale,
+                get_text_box(cost_texts['worker_hired_text'][2], 30,
                              (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * 0.25), self.OPAQUERED)
                 self.timer += 1
                 self.str_up = 0
@@ -570,11 +641,19 @@ class systemhandler:
         def increment_number():
             self.promptnumber += 1
 
-        rects = draw_scene('INTRO')
-        settings_rect = draw_settings_icon()
         # Game loop
         running = True
         while running:
+            # Clear the screen
+            self.screen.fill(self.BLACK)  # Passively fills all blank space
+            # Event handling
+            game_timer()  # total frame number
+            auto_miners()
+            backpack_rect = draw_packpack_icon()
+            statistics_rect = draw_stats_icon()
+            settings_rect = draw_settings_icon()
+            rects = draw_scene(self.state)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:  # should be the only IF, so the game will always close first. i think
                     with open('Autosaved Game.txt', 'w') as file:
@@ -589,10 +668,22 @@ class systemhandler:
                                 change_state('SETTINGS')
                     elif settings_rect.collidepoint(event.pos):
                         change_state('SETTINGS')
+                    elif self.state not in ('INTRO', 'SETTINGS', 'LOADGAME', 'TUTORIAL','BACKPACK') and backpack_rect.collidepoint(event.pos):
+                        change_state('BACKPACK')
+                    elif self.state not in ('INTRO', 'SETTINGS', 'LOADGAME', 'TUTORIAL','STATISTICS') and statistics_rect.collidepoint(event.pos):
+                        change_state('STATISTICS')
+                    elif self.state == 'BACKPACK' and backpack_rect.collidepoint(event.pos):
+                        self.state=self.laststate
+                    elif self.state == 'STATISTICS' and statistics_rect.collidepoint(event.pos):
+                        self.state=self.laststate
                     elif self.state == 'LOADGAME':
                         loadgame_events(rects)
                     elif self.state == 'SETTINGS':
                         settings_page_events(rects)
+                    elif self.state == 'STATISTICS':
+                        statistics_events(rects)
+                    elif self.state == 'BACKPACK':
+                        backpack_events(rects)
                     elif self.state == 'TUTORIAL':
                         tutorial_events(rects)
                     elif self.state == 'TOWN':
@@ -601,14 +692,6 @@ class systemhandler:
                         mine_level_1_events(rects)
                     elif self.state == 'MINERSGUILD':
                         miners_guild_events(rects)
-            # Clear the screen
-            self.screen.fill(self.BLACK)  # Passively fills all blank space. Catch-all just in case
-
-            # Event handling
-            game_timer()  # total frame number
-            rects = draw_scene(self.state)
-            settings_rect=draw_settings_icon()
-            auto_miners()
 
             # Update the display
             pygame.display.flip()
