@@ -32,6 +32,7 @@ class systemhandler:
         self.counter = 0  # play time
         self.thirdFPS = 0
         self.timer = 0
+        self.stimer = 0
         self.saveprogress = True
         self.gamesavesuccessful = False
         # Set Colors
@@ -59,6 +60,7 @@ class systemhandler:
         self.minerstrcost = 0
         self.str_up = 0
         self.good_click = 0
+        self.sshard_found = 0
         self.workercost = 0
         self.workers = 0
         self.worker_hired = 0
@@ -202,6 +204,7 @@ class systemhandler:
             self.totalmined += (self.minerstr / 2)
             sshard_chance = random.randint(1, 300)
             if sshard_chance >= (300 - self.minerstr):
+                self.sshard_found = 1
                 if self.minerstr < 10:
                     self.sshard += 1
                 if self.minerstr >= 15:
@@ -499,16 +502,24 @@ class systemhandler:
             rects['corner_location_icon'] = draw_location_icon(self.towniconimage)
             if self.good_click == 1:
                 self.timer += 1
-                get_text_box('Gained shards!', 30,
+                get_text_box('Mined some shards!', 30,
                              (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * (0.4-(0.15*(self.timer/60)))), self.OPAQUERED)
                 if self.timer >= 60:
                     self.timer = 0
                     self.good_click = 0
+            if self.sshard_found == 1:
+                self.stimer += 1
+                get_text_box('Found a special shard!', 30,
+                             (self.WINDOW_WIDTH * 0.5, self.WINDOW_HEIGHT * (0.4-(0.15*(self.stimer/60)))), self.OPAQUERED)
+                if self.stimer >= 60:
+                    self.stimer = 0
+                    self.sshard_found = 0
             return rects
 
         def mine_level_1_events(rects):
             if rects['corner_location_icon'].collidepoint(event.pos):
                 self.good_click = 0
+                self.sshard_found = 0
                 change_state('TOWN')
             if rects['mainclicktarget'].collidepoint(event.pos):
                 self.timer = 0
