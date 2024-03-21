@@ -17,7 +17,7 @@ class systemhandler:
         screen_res = 'small'
         if screen_res == 'medium':
             self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 1200, 900
-            self.fontscale = 1.75
+            self.fontscale = 1
         elif screen_res == 'large':
             self.WINDOW_WIDTH, self.WINDOW_HEIGHT = 1600, 1200
             self.fontscale = 2.5
@@ -59,6 +59,7 @@ class systemhandler:
         self.minerstr = 1
         self.minerstrcost = 0
         self.str_up = 0
+        self.strength = 1
         self.good_click = 0
         self.sshard_found = 0
         self.workercost = 0
@@ -68,6 +69,13 @@ class systemhandler:
 
         # Player Inventory
         player_inventory = []
+        self.player1name = 'Robot Boy'
+        self.player1health = 10
+        self.player1attack = 3
+
+        self.player2name = 'Demgob'
+        self.player2health = 12
+        self.player2attack = 2
 
         # Pre-Determined Locations For Repeat Items
         self.Text_Location_TalkCenter = (self.WINDOW_WIDTH * 0.35, self.WINDOW_HEIGHT * 0.755)
@@ -88,6 +96,7 @@ class systemhandler:
         self.loadgamescreenimage = pygame.image.load('LoadGameScreen.jpg')
         self.backpackscreenimage = pygame.image.load('Backpack_Background_Image.jpg')
         self.stats_page_image = pygame.image.load('Statistic_Background_Image.jpg')
+        self.treebuildingscene = pygame.image.load('TreeBuilding.png')
 
         # Icon Images
         def load_img(imagefile, size):
@@ -105,7 +114,6 @@ class systemhandler:
         self.darkenedstrength_up_icon = load_img('DarkenedStrengthUpImage.png', self.medium_icon)
         self.hire_worker_icon = load_img('HireWorkerIcon.png', self.medium_icon)
         self.darkenedhire_worker_icon = load_img('DarkenedHireWorkerIcon.png', self.medium_icon)
-        self.ShopRobotMiner_icon = load_img('ShopRobotMiner.jpg', self.medium_icon)
         self.DarkenedShopRobotMiner_icon = load_img('DarkenedShopRobotMiner.jpg', self.medium_icon)
         self.background_glow_icon1 = load_img('GlowingLight.png', self.large_icon)
         self.background_glow_icon2 = load_img('GlowingLight - Rotated1.png', self.large_icon)
@@ -113,9 +121,14 @@ class systemhandler:
         self.settings_icon = load_img('SettingsIcon2.png',self.mini_icon)
         self.stats_icon = load_img('StatisticIcon.jpg',self.small_icon)
         self.backpack_icon = load_img('BackpackImage.jpg',self.small_icon)
-        self.robot_boss_image = load_img('RobotBossImage.jpg', self.small_icon)
         self.mouse_clicked = pygame.mouse.get_pressed()[0]  # check once for happy mouse status function
         self.mouse_pos = pygame.mouse.get_pos()
+
+        #Characters
+        self.robot_boss_image = load_img('RobotBossImage.jpg', self.small_icon)
+        self.ShopRobotMiner_icon = load_img('ShopRobotMiner.jpg', self.medium_icon)
+        self.SmallBasicDemon_icon = load_img('SmallBasicDemon.jpg', self.medium_icon)
+
 
         def get_mouse_status():
             self.mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
@@ -144,31 +157,28 @@ class systemhandler:
                 return settings_rect
 
         # Next Button
-        def draw_next_button():
-            nextbuttontext = 'Next'
-            nexttext_font = pygame.font.Font(None, int(40*self.fontscale))
-            nextbuttonstring = nexttext_font.render(str(nextbuttontext), True, self.WHITE)  # rendering text as object/image
-            nextbutton_rect = nextbuttonstring.get_rect(
+        def draw_button(buttontext):
+            text_font = pygame.font.Font(None, int(40*self.fontscale))
+            buttonstring = text_font.render(str(buttontext), True, self.WHITE)  # rendering text as object/image
+            button_rect = buttonstring.get_rect(
                 center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT*0.92))  # gets rect of the text shape, placed at a location
-            nextbutton_rect = nextbutton_rect.inflate(nextbutton_rect.width * 1.2,
-                                                      nextbutton_rect.height * 1.2)  # inflated to clickable size
-            buttontextspot = nextbuttonstring.get_rect(center=nextbutton_rect.center)
-            pygame.draw.rect(self.screen, self.BLUE, nextbutton_rect)  # draw rect
-            self.screen.blit(nextbuttonstring, buttontextspot)  # draw next text
-            return nextbutton_rect
+            button_rect = button_rect.inflate(button_rect.width * 1.2,button_rect.height * 1.2)  # inflated to clickable size
+            buttontextspot = buttonstring.get_rect(center=button_rect.center)
+            pygame.draw.rect(self.screen, self.BLUE, button_rect)  # draw rect
+            self.screen.blit(buttonstring, buttontextspot)  # draw next text
+            return button_rect
+
+        def draw_next_button():
+            button_rect=draw_button('Next')
+            return button_rect
+
+        def draw_fight_button():
+            button_rect=draw_button('Fight')
+            return button_rect
 
         def draw_back_button():
-            backbuttontext = 'Back'
-            nexttext_font = pygame.font.Font(None, int(40*self.fontscale))
-            nextbuttonstring = nexttext_font.render(str(backbuttontext), True, self.WHITE)  # rendering text as object/image
-            backbutton_rect = nextbuttonstring.get_rect(
-                center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT*0.92))  # gets rect of the text shape, placed at a location
-            backbutton_rect = backbutton_rect.inflate(backbutton_rect.width * 1.2,
-                                                      backbutton_rect.height * 1.2)  # inflated to clickable size
-            buttontextspot = nextbuttonstring.get_rect(center=backbutton_rect.center)
-            pygame.draw.rect(self.screen, self.BLUE, backbutton_rect)  # draw rect
-            self.screen.blit(nextbuttonstring, buttontextspot)  # draw next text
-            return backbutton_rect
+            button_rect=draw_button('Back')
+            return button_rect
 
         # Drawing location icons
         def draw_location_icon(locationiconimage):
@@ -203,7 +213,7 @@ class systemhandler:
             self.shard += (self.minerstr / 2)
             self.totalmined += (self.minerstr / 2)
             sshard_chance = random.randint(1, 300)
-            if sshard_chance >= (300 - self.minerstr):
+            if sshard_chance >= (50 - self.minerstr):
                 self.sshard_found = 1
                 if self.minerstr < 10:
                     self.sshard += 1
@@ -319,6 +329,8 @@ class systemhandler:
                 return backpack_rects_and_images()
             if sceneinput == 'STATISTICS':
                 return statistics_rects_and_images()
+            if sceneinput == 'TREEBUILDING':
+                return tree_building_rects_and_images()
 
         def intro_rects_and_images():
             rects = {}
@@ -555,6 +567,52 @@ class systemhandler:
                 change_state('MINELEVEL1')
             if rects['minersguild_rect'].collidepoint(event.pos):
                 change_state('MINERSGUILD')
+            if rects['treebuilding_rect'].collidepoint(event.pos):
+                change_state('TREEBUILDING')
+
+        def tree_building_rects_and_images():
+            draw_background(self.treebuildingscene)
+            rects = {}
+
+            rects['fightbutton']=draw_fight_button()
+            if self.player1health > 0:
+                rects['Robot_Companion'] = pygame.Rect((self.WINDOW_WIDTH*0.33, self.WINDOW_HEIGHT*0.54),
+                                                        (self.medium_icon))  # location, size
+                self.screen.blit(self.ShopRobotMiner_icon, rects['Robot_Companion'])
+                get_text_box((self.player1health), 50,
+                             (self.WINDOW_WIDTH * 0.4, self.WINDOW_HEIGHT * (0.48)),
+                             self.RED)
+            if self.player2health > 0:
+                rects['small_basic_demon'] = pygame.Rect((self.WINDOW_WIDTH*0.53, self.WINDOW_HEIGHT*0.54),
+                                                        (self.medium_icon))  # location, size
+                self.screen.blit(self.SmallBasicDemon_icon, rects['small_basic_demon'])
+                get_text_box((self.player2health), 50,
+                             (self.WINDOW_WIDTH * 0.6, self.WINDOW_HEIGHT * (0.48)),
+                             self.RED)
+
+            if self.player1health <= 0 or self.player2health <= 0:
+                if self.player1health <= 0:
+                    get_text_box((self.player1name + ' has died!'), 50,
+                                 (self.WINDOW_WIDTH * 0.22, self.WINDOW_HEIGHT * (0.48)),
+                                 self.OPAQUERED)
+
+                if self.player2health <= 0:
+                    get_text_box((self.player2name + ' has died!'), 50,
+                                 (self.WINDOW_WIDTH * 0.66, self.WINDOW_HEIGHT * 0.48),
+                                 self.OPAQUERED)
+                self.fightActive = False
+            else:
+                self.fightActive = True
+            return rects
+
+        def tree_building_events(rects): #treat this as a combat function
+            if rects['fightbutton'].collidepoint(event.pos):
+                if self.fightActive:
+                    basicattackPhase()
+
+        def basicattackPhase():
+            self.player1health -= self.player2attack
+            self.player2health -= self.player1attack
 
         def miners_guild_rects_and_images():
             self.mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
@@ -703,6 +761,8 @@ class systemhandler:
                         mine_level_1_events(rects)
                     elif self.state == 'MINERSGUILD':
                         miners_guild_events(rects)
+                    elif self.state == 'TREEBUILDING':
+                        tree_building_events(rects)
 
             # Update the display
             pygame.display.flip()
