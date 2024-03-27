@@ -1,5 +1,16 @@
 
+# Set Colors
+CLEAR = pygame.Color(0, 0, 0, 0)
+WHITE = pygame.Color(255, 255, 255)
+BLACK = pygame.Color(0, 0, 0)
+OPAQUEBLACK = pygame.Color(0, 0, 0, 140)
+RED = pygame.Color(255, 0, 0)
+OPAQUERED = pygame.Color(255, 0, 0, 160)
+GREEN = pygame.Color(0, 255, 0)
+BLUE = pygame.Color(0, 0, 255)
+LIBLUE = pygame.Color(0, 128, 255)
 
+# Set Screen Resolution
 screen_res = 'small'
 if screen_res == 'medium':
     WINDOW_WIDTH, WINDOW_HEIGHT = 1200, 900
@@ -11,6 +22,7 @@ else:
     WINDOW_WIDTH, WINDOW_HEIGHT = 800, 600
     fontscale = 0.7
 
+#Set Icon Sizes
 mini_icon = (WINDOW_HEIGHT * 0.1, WINDOW_HEIGHT * 0.1)
 small_icon = (WINDOW_HEIGHT * 0.15, WINDOW_HEIGHT * 0.15)
 medium_icon = (WINDOW_HEIGHT * 0.2, WINDOW_HEIGHT * 0.2)
