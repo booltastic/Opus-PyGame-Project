@@ -5,6 +5,8 @@ import random
 from drawfunctions import *
 from images import *
 from config import *
+from gamedata import *
+from battlescene import *
 
 # Initialize Pygame
 pygame.init()
@@ -14,12 +16,9 @@ pygame.mixer.init()
 # recruit your own miners. Over time, the mine depletes. But you can venture further...
 
 class SystemHandler:
-    screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-    state = 'INTRO'
-    counter = 0  # play time
-
     def __init__(self):
-
+        #self.state = 'INTRO'
+        self.counter = 0
         # Set up the display
         pygame.display.set_caption("Practice Clicker Game")
         self.clock = pygame.time.Clock()
@@ -33,33 +32,14 @@ class SystemHandler:
 
         # Global Variables
         self.titlestring = 'The Clicker Game'
-        self.laststate = 'INTRO'
         self.promptnumber = 0
-
-        self.shard = 0
-        self.totalmined = 0
-        self.sshard = 0
         self.mouseclick = 0
-        self.minerstr = 1
-        self.minerstrcost = 0
         self.str_up = 0
         self.strength = 1
         self.good_click = 0
         self.sshard_found = 0
-        self.workercost = 0
-        self.workers = 0
         self.worker_hired = 0
         self.workerlimit = 10
-
-        # Player Inventory
-        player_inventory = []
-        self.player1name = 'Robot Boy'
-        self.player1health = 10
-        self.player1attack = 3
-
-        self.player2name = 'Demgob'
-        self.player2health = 12
-        self.player2attack = 2
 
         self.mouse_clicked = pygame.mouse.get_pressed()[0]  # check once for happy mouse status function
         self.mouse_pos = pygame.mouse.get_pos()
@@ -70,47 +50,47 @@ class SystemHandler:
         self.mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
         self.mouse_pos = pygame.mouse.get_pos()
 
-
-
-    def game_timer(self):
+    def increment_counter(self):
         self.counter += 1
 
     # Make shard
     def make_click_shard(self):
-        self.shard += (self.minerstr / 2)
-        self.totalmined += (self.minerstr / 2)
+        GameData.shard += (GameData.minerstr / 2)
+        GameData.totalmined += (GameData.minerstr / 2)
         sshard_chance = random.randint(1, 300)
-        if sshard_chance >= (50 - self.minerstr):
+        if sshard_chance >= (50 - GameData.minerstr):
             self.sshard_found = 1
-            if self.minerstr < 10:
-                self.sshard += 1
-            if self.minerstr >= 15:
-                self.sshard += 2
+            if GameData.minerstr < 10:
+                GameData.sshard += 1
+            if GameData.minerstr >= 15:
+                GameData.sshard += 2
 
     def auto_miners(self):
-        if self.workers >= 1:
-            self.shard += self.workers / 60
-            self.totalmined += self.workers / 60
+        if GameData.workers >= 1:
+            GameData.shard += GameData.workers / 60
+            GameData.totalmined += GameData.workers / 60
             sshard_chance = random.randint(1, 3000)
-            if sshard_chance >= (3000 - (self.workers)):
-                self.sshard += 1
+            if sshard_chance >= (3000 - (GameData.workers)):
+                GameData.shard += 1
 
     def get_cost(self):
         cost_texts = {}
         #self.minerstrcost = int(self.minerstr * 25)
-        self.minerstrcost = int(25 * (2**(1/5))**(self.minerstr-1))
+        GameData.minerstrcost = int(25 * (2**(1/5))**(GameData.minerstr-1))
         #self.workercost = int(self.workers * 1.75) + 5
-        self.workercost = int(5*(5**(1/3))**(self.workers-1))
+        GameData.workercost = int(5*(5**(1/3))**(GameData.workers-1))
         cost_texts['str_upgrade_text'] = ['Mining Strength +1!', 'Not enough Shards!']
         cost_texts['worker_hired_text'] = ['New worker recruited!',
                                            'Not enough Special Shards!', 'Worker limit reached (Current limit '+str(self.workerlimit) + ')']
         return cost_texts
 
     ### SCENES ###
+
+
     def change_state(self, new_state):
-        if self.state not in ('LOADGAME','SETTINGS','BACKPACK','STATISTICS'):
-            self.laststate = self.state
-        self.state = new_state
+        if GameData.state not in ('LOADGAME','SETTINGS','BACKPACK','STATISTICS'):
+            GameData.laststate = GameData.state
+        GameData.state = new_state
 
     def draw_scene(self, sceneinput):  # argument passed through is State
         if sceneinput == 'INTRO':
@@ -132,7 +112,7 @@ class SystemHandler:
         if sceneinput == 'STATISTICS':
             return self.statistics_rects_and_images()
         if sceneinput == 'TREEBUILDING':
-            return self.tree_building_rects_and_images()
+            return tree_building_rects_and_images()
 
     def intro_rects_and_images(self):
         rects = {}
@@ -145,7 +125,7 @@ class SystemHandler:
         else:
             HEIGHT = WINDOW_HEIGHT/2
         background_rect = background_image.get_rect(center=(WINDOW_WIDTH / 2, HEIGHT))
-        self.screen.blit(background_image, background_rect)
+        screen.blit(background_image, background_rect)
         if timer > 60:
             get_text_box(introstring,50,(WINDOW_WIDTH/2, WINDOW_HEIGHT*0.23), OPAQUERED)
             rects['new_game_rect'] = get_text_box(newgametext[0], 50, (WINDOW_WIDTH*0.35, WINDOW_HEIGHT*0.53), BLUE)
@@ -168,7 +148,7 @@ class SystemHandler:
 
     def statistics_events(self, rects):
         if rects['back_button'].collidepoint(self.event.pos):
-            self.state=self.laststate
+            GameData.state=GameData.laststate
 
     def backpack_rects_and_images(self):
         rects = {}
@@ -179,12 +159,12 @@ class SystemHandler:
 
     def backpack_events(self, rects):
         if rects['back_button'].collidepoint(self.event.pos):
-            self.state=self.laststate
+            GameData.state=GameData.laststate
 
     def settings_page(self):
         draw_background(loadgamescreenimage)
         rects={}
-        if self.laststate != 'INTRO':
+        if GameData.laststate != 'INTRO':
             rects['save_game_rect']=get_text_box('Save Game', 40,
                          (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.3),
                          OPAQUERED)
@@ -201,7 +181,7 @@ class SystemHandler:
                              (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.8),
                              OPAQUERED)
                 self.saveprogress = True
-        if self.laststate == 'INTRO':
+        if GameData.laststate == 'INTRO':
             get_text_box('(more settings will eventually live here)', 40,
                          (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.5),
                          OPAQUERED)
@@ -209,13 +189,13 @@ class SystemHandler:
         return rects
 
     def settings_page_events(self, rects):
-        if self.laststate != 'INTRO':
+        if GameData.laststate != 'INTRO':
             if rects['load_game_rect'].collidepoint(self.event.pos):
                 self.saveprogress = True
                 self.gamesavesuccessful = False
                 self.change_state('LOADGAME')
             if rects['save_game_rect'].collidepoint(self.event.pos):
-                savestatelist = self.totalmined, self.shard, self.sshard, self.workers, self.minerstr
+                savestatelist = GameData.totalmined, GameData.shard, GameData.shard, GameData.workers, GameData.minerstr
                 if savestatelist == (0, 0, 0, 0, 1):
                     self.saveprogress = False
                 else:
@@ -225,10 +205,10 @@ class SystemHandler:
         if rects['back_button'].collidepoint(self.event.pos):
             self.saveprogress = True
             self.gamesavesuccessful = False
-            if self.laststate == 'INTRO':
-                self.state = 'INTRO'
+            if GameData.laststate == 'INTRO':
+                GameData.state = 'INTRO'
             else:
-                self.state=self.laststate
+                GameData.state=GameData.laststate
 
     def loadgame_rects_and_images(self):
         draw_background(loadgamescreenimage)
@@ -258,18 +238,17 @@ class SystemHandler:
                     content = content.split(', ')
                     if len(content) == 0:
                         pass
-                    self.totalmined, self.shard, self.sshard, self.workers, self.minerstr = float(content[0]), float(content[1]), float(
+                    GameData.totalmined, GameData.shard, GameData.shard, GameData.workers, GameData.minerstr = float(content[0]), float(content[1]), float(
                         content[2]), float(
                         content[3]), float(content[4])
                     self.change_state('TOWN')
         if rects['back_button'].collidepoint(self.event.pos):
             self.saveprogress = True
             self.gamesavesuccessful = False
-            if self.laststate == 'INTRO':
-                self.state = 'INTRO'
+            if GameData.laststate == 'INTRO':
+                GameData.state = 'INTRO'
             else:
-                self.state = 'SETTINGS'
-
+                GameData.state = 'SETTINGS'
 
     def tutorial_rects_and_images(self):  # where basically everything is drawn and established
         self.tuttext = ['Welcome to the Mines of Esswun, kid!', 'We need you to mine these blue shards.',
@@ -289,17 +268,17 @@ class SystemHandler:
                 backpack_rect = pygame.Rect((WINDOW_WIDTH * 0.006, WINDOW_HEIGHT * 0.63),
                                             (medium_icon))  # location, size
                 backpack_icon_image = pygame.transform.scale(backpack_icon, (medium_icon))
-                self.screen.blit(backpack_icon_image, backpack_rect)
+                screen.blit(backpack_icon_image, backpack_rect)
             if self.promptnumber == 5:
                 statistics_rect = pygame.Rect((WINDOW_WIDTH * 0.006, WINDOW_HEIGHT * 0.79),
                                               (medium_icon))  # location, size
                 statistics_icon_image = pygame.transform.scale(stats_icon, (medium_icon))
-                self.screen.blit(statistics_icon_image, statistics_rect)
+                screen.blit(statistics_icon_image, statistics_rect)
             if self.promptnumber == 6:
                 icon_rect = pygame.Rect((WINDOW_WIDTH * 0.845, WINDOW_HEIGHT * 0.795),
                                         (medium_icon))  # location, size
                 return_icon_image = pygame.transform.scale(towniconimage, (medium_icon))
-                self.screen.blit(return_icon_image, icon_rect)
+                screen.blit(return_icon_image, icon_rect)
         rects['next_button'] = draw_next_button()
         return rects
 
@@ -345,15 +324,15 @@ class SystemHandler:
         draw_background(quainttownimage)
         rects['minersguild_rect'] = pygame.Rect((WINDOW_WIDTH*0.59, WINDOW_HEIGHT*0.34),
                                                 (medium_icon))  # location, size
-        self.screen.blit(minersguildicon, rects['minersguild_rect'])
+        screen.blit(minersguildicon, rects['minersguild_rect'])
 
         rects['level1mine_rect'] = pygame.Rect((WINDOW_WIDTH*0.43, WINDOW_HEIGHT*0.65),
                                                 (medium_icon))  # location, size
-        self.screen.blit(level1minesceneimageicon, rects['level1mine_rect'])
+        screen.blit(level1minesceneimageicon, rects['level1mine_rect'])
 
         rects['treebuilding_rect'] = pygame.Rect((WINDOW_WIDTH*0.266, WINDOW_HEIGHT*0.34),
                                                 (medium_icon))  # location, size
-        self.screen.blit(treebuildingicon, rects['treebuilding_rect'])
+        screen.blit(treebuildingicon, rects['treebuilding_rect'])
 
         town_text = ['Back to the mines',"Miner's Guild", 'Strange Tree Building']
         get_text_box(town_text[0], 30,
@@ -372,12 +351,6 @@ class SystemHandler:
         if rects['treebuilding_rect'].collidepoint(self.event.pos):
             self.change_state('TREEBUILDING')
 
-
-
-    def basicattackPhase(self):
-        self.player1health -= self.player2attack
-        self.player2health -= self.player1attack
-
     def miners_guild_rects_and_images(self):
         self.mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
         self.mouse_pos = pygame.mouse.get_pos()
@@ -394,7 +367,7 @@ class SystemHandler:
                                                 medium_icon)  # location, size
         #Text
         minerswelcome = ['Welcome to the Miner\'s Guild!', 'Spend your shards to upgrade your mining skill']
-        descripts = ['Cute little robot guy','Increase amount of shards mined per click (Costs '+ str(self.minerstrcost)+' Shards)','Hire worker for passive Shard mining (Costs '+str(self.workercost)+' Special Shards)']
+        descripts = ['Cute little robot guy','Increase amount of shards mined per click (Costs '+ str(GameData.minerstrcost)+' Shards)','Hire worker for passive Shard mining (Costs '+str(GameData.workercost)+' Special Shards)']
         get_text_box(minerswelcome[0], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.635), OPAQUERED, horiboxscale=0.09)
         get_text_box(minerswelcome[1], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.72), OPAQUERED, horiboxscale=0.09)
         if rects['ShopRobotMiner_rect'].collidepoint(self.mouse_pos):
@@ -408,9 +381,9 @@ class SystemHandler:
                          OPAQUERED, horiboxscale=0.09)
 
         #Blits
-        self.darken_on_click(rects['str_up_rect'], strength_up_icon, darkenedstrength_up_icon)
-        self.darken_on_click(rects['hire_worker_rect'], hire_worker_icon, darkenedhire_worker_icon)
-        self.darken_on_click(rects['ShopRobotMiner_rect'], ShopRobotMiner_icon, DarkenedShopRobotMiner_icon)
+        darken_on_click(rects['str_up_rect'], strength_up_icon, darkenedstrength_up_icon)
+        darken_on_click(rects['hire_worker_rect'], hire_worker_icon, darkenedhire_worker_icon)
+        darken_on_click(rects['ShopRobotMiner_rect'], ShopRobotMiner_icon, DarkenedShopRobotMiner_icon)
 
         if self.str_up == 1:
             get_text_box(cost_texts['str_upgrade_text'][0], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
@@ -448,9 +421,9 @@ class SystemHandler:
         if rects['str_up_rect'].collidepoint(self.event.pos):
             self.timer = 0
             self.worker_hired = 0
-            if self.shard >= self.minerstrcost:
-                self.shard -= self.minerstrcost
-                self.minerstr += 1
+            if GameData.shard >= GameData.minerstrcost:
+                GameData.shard -= GameData.minerstrcost
+                GameData.minerstr += 1
                 self.str_up = 1  # (1 for yes, generate success text)
             else:
                 self.str_up = 2  # (2 for no)
@@ -458,11 +431,11 @@ class SystemHandler:
         if rects['hire_worker_rect'].collidepoint(self.event.pos):
             self.timer = 0
             self.str_up = 0
-            if self.sshard >= self.workercost and self.workers<self.workerlimit:
-                self.sshard -= self.workercost
+            if GameData.shard >= GameData.workercost and GameData.workers<self.workerlimit:
+                GameData.shard -= GameData.workercost
                 self.worker_hired = 1
-                self.workers += 1
-            elif self.sshard >= self.workercost and self.workers>=self.workerlimit: #notifys worker limit reached
+                GameData.workers += 1
+            elif GameData.shard >= GameData.workercost and GameData.workers>=self.workerlimit: #notifys worker limit reached
                 self.worker_hired = 3
             else:
                 self.worker_hired = 2
@@ -470,6 +443,13 @@ class SystemHandler:
             self.change_state('TOWN')
             self.str_up = 0
             self.worker_hired = 0
+
+    def tree_building_events(self, rects):  # treat this as a combat function
+        if rects['fightbutton'].collidepoint(self.event.pos):
+            if GameData.fightActive:
+                basicattackPhase()
+        if rects['backbutton'].collidepoint(self.event.pos):
+            GameData.state = 'TOWN'
 
     def increment_number(self):
         self.promptnumber += 1
@@ -479,54 +459,55 @@ class SystemHandler:
         running = True
         while running:
             # Clear the screen
-            self.screen.fill(BLACK)  # Passively fills all blank space
+            screen.fill(BLACK)  # Passively fills all blank space
             # Event handling
-            self.game_timer()  # total frame number
+            #self.game_timer()  # total frame number
+            self.increment_counter()
             self.auto_miners()
             self.backpack_rect = draw_backpack_icon()
             self.statistics_rect = draw_stats_icon()
             self.settings_rect = draw_settings_icon()
-            rects = self.draw_scene(self.state)
+            rects = self.draw_scene(GameData.state)
 
             for self.event in pygame.event.get():
                 if self.event.type == pygame.QUIT:  # should be the only IF, so the game will always close first. i think
                     with open('Autosaved Game.txt', 'w') as file:
-                        savestatelist = self.totalmined, self.shard, self.sshard, self.workers, self.minerstr
+                        savestatelist = GameData.totalmined, GameData.shard, GameData.shard, GameData.workers, GameData.minerstr
                         file.write(str(savestatelist))
                     running = False
                 elif self.event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.state == 'INTRO':
+                    if GameData.state == 'INTRO':
                         self.intro_events(rects)
                         if self.counter>60:
                             if self.settings_rect.collidepoint(self.event.pos):
                                 self.change_state('SETTINGS')
                     elif self.settings_rect.collidepoint(self.event.pos):
                         self.change_state('SETTINGS')
-                    elif self.state not in ('INTRO', 'SETTINGS', 'LOADGAME', 'TUTORIAL','BACKPACK') and self.backpack_rect.collidepoint(self.event.pos):
+                    elif GameData.state not in ('INTRO', 'SETTINGS', 'LOADGAME', 'TUTORIAL','BACKPACK') and self.backpack_rect.collidepoint(self.event.pos):
                         self.change_state('BACKPACK')
-                    elif self.state not in ('INTRO', 'SETTINGS', 'LOADGAME', 'TUTORIAL','STATISTICS') and self.statistics_rect.collidepoint(self.event.pos):
+                    elif GameData.state not in ('INTRO', 'SETTINGS', 'LOADGAME', 'TUTORIAL','STATISTICS') and self.statistics_rect.collidepoint(self.event.pos):
                         self.change_state('STATISTICS')
-                    elif self.state == 'BACKPACK' and self.backpack_rect.collidepoint(self.event.pos):
-                        self.state=self.laststate
-                    elif self.state == 'STATISTICS' and self.statistics_rect.collidepoint(self.event.pos):
-                        self.state=self.laststate
-                    elif self.state == 'LOADGAME':
+                    elif GameData.state == 'BACKPACK' and self.backpack_rect.collidepoint(self.event.pos):
+                        GameData.state=GameData.laststate
+                    elif GameData.state == 'STATISTICS' and self.statistics_rect.collidepoint(self.event.pos):
+                        GameData.state=GameData.laststate
+                    elif GameData.state == 'LOADGAME':
                         self.loadgame_events(rects)
-                    elif self.state == 'SETTINGS':
+                    elif GameData.state == 'SETTINGS':
                         self.settings_page_events(rects)
-                    elif self.state == 'STATISTICS':
+                    elif GameData.state == 'STATISTICS':
                         self.statistics_events(rects)
-                    elif self.state == 'BACKPACK':
+                    elif GameData.state == 'BACKPACK':
                         self.backpack_events(rects)
-                    elif self.state == 'TUTORIAL':
+                    elif GameData.state == 'TUTORIAL':
                         self.tutorial_events(rects)
-                    elif self.state == 'TOWN':
+                    elif GameData.state == 'TOWN':
                         self.town_events(rects)
-                    elif self.state == 'MINELEVEL1':
+                    elif GameData.state == 'MINELEVEL1':
                         self.mine_level_1_events(rects)
-                    elif self.state == 'MINERSGUILD':
+                    elif GameData.state == 'MINERSGUILD':
                         self.miners_guild_events(rects)
-                    elif self.state == 'TREEBUILDING':
+                    elif GameData.state == 'TREEBUILDING':
                         self.tree_building_events(rects)
 
             # Update the display
@@ -536,5 +517,5 @@ class SystemHandler:
 playgame = SystemHandler()
 
 # Quit Pygame
-# pygame.quit()
-# sys.exit()
+pygame.quit()
+sys.exit()
