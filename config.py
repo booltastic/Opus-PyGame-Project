@@ -1,3 +1,4 @@
+import pygame
 
 # Set Colors
 CLEAR = pygame.Color(0, 0, 0, 0)

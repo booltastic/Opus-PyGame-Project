@@ -2,8 +2,9 @@ import pygame
 import os
 import sys
 import random
-#from intro_scene import *
+from drawfunctions import *
 from images import *
+from config import *
 
 # Initialize Pygame
 pygame.init()
@@ -12,16 +13,18 @@ pygame.mixer.init()
 #You are hired to mine this mysterious shard. There's some sort of value you're unaware of. You get better, and start to
 # recruit your own miners. Over time, the mine depletes. But you can venture further...
 
-class systemhandler:
+class SystemHandler:
+    screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    state = 'INTRO'
+    counter = 0  # play time
+
     def __init__(self):
 
         # Set up the display
-        self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption("Practice Clicker Game")
         self.clock = pygame.time.Clock()
         self.FPS = 30
         self.timecounter = 0
-        self.counter = 0  # play time
         self.thirdFPS = 0
         self.timer = 0
         self.stimer = 0
@@ -30,7 +33,6 @@ class systemhandler:
 
         # Global Variables
         self.titlestring = 'The Clicker Game'
-        self.state = 'INTRO'
         self.laststate = 'INTRO'
         self.promptnumber = 0
 
@@ -68,79 +70,10 @@ class systemhandler:
         self.mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
         self.mouse_pos = pygame.mouse.get_pos()
 
-    def darken_on_click(self, rect, icon, darkenedicon):
-        if self.mouse_clicked and rect.collidepoint(self.mouse_pos):
-            self.screen.blit(darkenedicon, rect)
-        else:
-            self.screen.blit(icon, rect)
+
 
     def game_timer(self):
         self.counter += 1
-
-    # Drawing scene backgrounds
-    def draw_background(self, locationimage):
-        background_image = pygame.transform.scale(locationimage, (WINDOW_HEIGHT, WINDOW_HEIGHT))
-        background_rect = background_image.get_rect(center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
-        self.screen.blit(background_image, background_rect)
-
-    #Draw settings icon
-    def draw_settings_icon(self):
-        if self.counter>60:
-            settings_rect = settings_icon.get_rect(center=(WINDOW_WIDTH * 0.937, WINDOW_HEIGHT * 0.065))
-            self.screen.blit(settings_icon, settings_rect)
-            return settings_rect
-
-    # Next Button
-    def draw_button(self, buttontext):
-        text_font = pygame.font.Font(None, int(40*fontscale))
-        buttonstring = text_font.render(str(buttontext), True, WHITE)  # rendering text as object/image
-        button_rect = buttonstring.get_rect(
-            center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT*0.92))  # gets rect of the text shape, placed at a location
-        button_rect = button_rect.inflate(button_rect.width * 1.2,button_rect.height * 1.2)  # inflated to clickable size
-        buttontextspot = buttonstring.get_rect(center=button_rect.center)
-        pygame.draw.rect(self.screen, BLUE, button_rect)  # draw rect
-        self.screen.blit(buttonstring, buttontextspot)  # draw next text
-        return button_rect
-
-    def draw_next_button(self):
-        button_rect=self.draw_button('Next')
-        return button_rect
-
-    def draw_fight_button(self):
-        button_rect=self.draw_button('Fight')
-        return button_rect
-
-    def draw_back_button(self):
-        button_rect=self.draw_button('Back')
-        return button_rect
-
-    # Drawing location icons
-    def draw_location_icon(self, locationiconimage):
-        icon_rect = pygame.Rect((WINDOW_WIDTH*0.8822, WINDOW_HEIGHT*0.843), (small_icon))  # location, size
-        return_icon_image = pygame.transform.scale(locationiconimage, (small_icon))
-        self.screen.blit(return_icon_image, icon_rect)
-        return icon_rect
-
-    def draw_speaker_icon(self, speakerimage):
-        speaker_rect = pygame.Rect((WINDOW_WIDTH * 0.22, WINDOW_HEIGHT * 0.68),
-                                    (small_icon))  # location, size
-        speaker_icon_image = pygame.transform.scale(speakerimage, (small_icon))
-        self.screen.blit(speaker_icon_image, speaker_rect)
-
-    def draw_packpack_icon(self):
-        if self.state not in ('INTRO', 'SETTINGS', 'LOADGAME'):
-            backpack_rect = pygame.Rect((WINDOW_WIDTH * 0.006, WINDOW_HEIGHT * 0.68),(small_icon))  # location, size
-            backpack_icon_image = pygame.transform.scale(backpack_icon, (small_icon))
-            self.screen.blit(backpack_icon_image, backpack_rect)
-            return backpack_rect
-
-    def draw_stats_icon(self):
-        if self.state not in ('INTRO', 'SETTINGS', 'LOADGAME'):
-            statistics_rect = pygame.Rect((WINDOW_WIDTH * 0.006, WINDOW_HEIGHT * 0.84),
-                                    (small_icon))  # location, size
-            statistics_icon_image = pygame.transform.scale(stats_icon, (small_icon))
-            self.screen.blit(statistics_icon_image, statistics_rect)
-            return statistics_rect
 
     # Make shard
     def make_click_shard(self):
@@ -172,71 +105,6 @@ class systemhandler:
         cost_texts['worker_hired_text'] = ['New worker recruited!',
                                            'Not enough Special Shards!', 'Worker limit reached (Current limit '+str(self.workerlimit) + ')']
         return cost_texts
-
-    def draw_inventory(self):
-        shard_string = 'Shards: ' + str(int(self.shard))
-        self.get_text_box(shard_string, 35, (WINDOW_WIDTH*0.5, WINDOW_HEIGHT*0.5), BLACK, 'center',1)
-
-        # Special Shards
-        sshard_string = 'Special Shards: ' + str(int(self.sshard))
-        self.get_text_box(sshard_string, 35, (WINDOW_WIDTH*0.5, WINDOW_HEIGHT*0.6), BLACK, 'center',1)
-
-    def draw_statistics(self):
-        #Shards
-        totalmined_string = 'Total Shards Mined: ' + str(int(self.totalmined))
-        self.get_text_box(totalmined_string, 35, (WINDOW_WIDTH*0.5, WINDOW_HEIGHT*0.4), BLACK, 'center', 1)
-
-        # # Workers
-        worker_string = 'Workers: ' + str(int(self.workers))
-        self.get_text_box(worker_string, 35, (WINDOW_WIDTH*0.5, WINDOW_HEIGHT*0.5), BLACK, 'center',1)
-        #
-        # # Mining Strength
-        minestr_string = 'Mining Strength: ' + str(int(self.minerstr))
-        self.get_text_box(minestr_string, 35, (WINDOW_WIDTH*0.5, WINDOW_HEIGHT*0.6), BLACK, 'center',1)
-
-    def draw_mainclicktarget(self):
-        #self.get_mouse_status()
-        timer = int(self.counter/3)
-        for i in range(0,1):
-            if timer % 3 == i:
-                glowing_background_rect = background_glow_icon1.get_rect(center=screen_center)
-                self.screen.blit(background_glow_icon1, glowing_background_rect)
-        for i in range(1,2):
-            if timer % 3 == i:
-                glowing_background_rect = background_glow_icon2.get_rect(center=screen_center)
-                self.screen.blit(background_glow_icon2, glowing_background_rect)
-        for i in range(2,3):
-            if timer % 3 == i:
-                glowing_background_rect = background_glow_icon3.get_rect(center=screen_center)
-                self.screen.blit(background_glow_icon3, glowing_background_rect)
-
-        glowingrockicon_rect = glowingrockicon.get_rect(center=screen_center)
-        self.darken_on_click(glowingrockicon_rect, glowingrockicon, glowingrockicon2)
-
-        return glowingrockicon_rect
-
-    def get_text_box(self, drawntext, fontsize, textlocation, color, alignment='center',vertboxscale=float(1), horiboxscale=float(0.15)):  # made for rects loops
-        boxtext = drawntext
-        boxtextfont = pygame.font.Font(None, int(fontsize*(fontscale)))
-        renderedtext = boxtextfont.render(str(boxtext), True, WHITE)  # renders text image
-        if alignment == 'left':
-            colliderect = renderedtext.get_rect(
-                midleft=textlocation)  # create rect the size of the text at chosen location. sets ratio of size, and where we want the center
-        else:
-            colliderect = renderedtext.get_rect(
-                center=textlocation)
-        colliderect = colliderect.inflate(colliderect.width*horiboxscale,
-                                          colliderect.height*vertboxscale)  # inflate that rect in place to twice its size, this is what gets clicked
-        # pygame.draw.rect(self.screen, color,
-        #                  colliderect)  # draws the rect renderedrect, this cannot be passed to collidepoint though (just drawing it)
-        renderedtextrect = renderedtext.get_rect(
-            center=colliderect.center)  # this rect is creating a text sized rect and placing it at the center of the big rect, so its already centered.
-        surface=pygame.Surface(colliderect.size,pygame.SRCALPHA)
-        pygame.draw.rect(surface, color,
-                         surface.get_rect())
-        self.screen.blit(surface,colliderect)
-        self.screen.blit(renderedtext, renderedtextrect)
-        return colliderect  # if applicable. only used if you need to click it
 
     ### SCENES ###
     def change_state(self, new_state):
@@ -279,9 +147,9 @@ class systemhandler:
         background_rect = background_image.get_rect(center=(WINDOW_WIDTH / 2, HEIGHT))
         self.screen.blit(background_image, background_rect)
         if timer > 60:
-            self.get_text_box(introstring,50,(WINDOW_WIDTH/2, WINDOW_HEIGHT*0.23), OPAQUERED)
-            rects['new_game_rect'] = self.get_text_box(newgametext[0], 50, (WINDOW_WIDTH*0.35, WINDOW_HEIGHT*0.53), BLUE)
-            rects['load_game_rect'] = self.get_text_box(newgametext[1], 50, (WINDOW_WIDTH*0.65, WINDOW_HEIGHT*0.53), BLUE)
+            get_text_box(introstring,50,(WINDOW_WIDTH/2, WINDOW_HEIGHT*0.23), OPAQUERED)
+            rects['new_game_rect'] = get_text_box(newgametext[0], 50, (WINDOW_WIDTH*0.35, WINDOW_HEIGHT*0.53), BLUE)
+            rects['load_game_rect'] = get_text_box(newgametext[1], 50, (WINDOW_WIDTH*0.65, WINDOW_HEIGHT*0.53), BLUE)
         return rects
 
     def intro_events(self, rects):
@@ -293,9 +161,9 @@ class systemhandler:
 
     def statistics_rects_and_images(self):
         rects = {}
-        self.draw_background(stats_page_image)
-        self.draw_statistics()
-        rects['back_button']=self.draw_back_button()
+        draw_background(stats_page_image)
+        draw_statistics()
+        rects['back_button']=draw_back_button()
         return rects
 
     def statistics_events(self, rects):
@@ -304,9 +172,9 @@ class systemhandler:
 
     def backpack_rects_and_images(self):
         rects = {}
-        self.draw_background(backpackscreenimage)
-        self.draw_inventory()
-        rects['back_button'] = self.draw_back_button()
+        draw_background(backpackscreenimage)
+        draw_inventory()
+        rects['back_button'] = draw_back_button()
         return rects
 
     def backpack_events(self, rects):
@@ -314,30 +182,30 @@ class systemhandler:
             self.state=self.laststate
 
     def settings_page(self):
-        self.draw_background(loadgamescreenimage)
+        draw_background(loadgamescreenimage)
         rects={}
         if self.laststate != 'INTRO':
-            rects['save_game_rect']=self.get_text_box('Save Game', 40,
+            rects['save_game_rect']=get_text_box('Save Game', 40,
                          (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.3),
                          OPAQUERED)
-            rects['load_game_rect']=self.get_text_box('Load Game', 40,
+            rects['load_game_rect']=get_text_box('Load Game', 40,
                          (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.5),
                          OPAQUERED)
             if self.saveprogress == False:
-                self.get_text_box('Brooo cmon you just started XD', 40,
+                get_text_box('Brooo cmon you just started XD', 40,
                              (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.8),
                              OPAQUERED)
                 self.gamesavesuccessful = False
             if self.gamesavesuccessful == True:
-                self.get_text_box('Game saved successfully', 40,
+                get_text_box('Game saved successfully', 40,
                              (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.8),
                              OPAQUERED)
                 self.saveprogress = True
         if self.laststate == 'INTRO':
-            self.get_text_box('(more settings will eventually live here)', 40,
+            get_text_box('(more settings will eventually live here)', 40,
                          (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.5),
                          OPAQUERED)
-        rects['back_button'] = self.draw_back_button()
+        rects['back_button'] = draw_back_button()
         return rects
 
     def settings_page_events(self, rects):
@@ -363,9 +231,9 @@ class systemhandler:
                 self.state=self.laststate
 
     def loadgame_rects_and_images(self):
-        self.draw_background(loadgamescreenimage)
+        draw_background(loadgamescreenimage)
         rects={}
-        rects['back_button'] = self.draw_back_button()
+        rects['back_button'] = draw_back_button()
         files_with_string = []
         for file in os.listdir():
             if 'Saved Game' in file or 'Autosaved Game' in file:  # Check if the file is a text file
@@ -373,10 +241,10 @@ class systemhandler:
         numberoffiles = len(files_with_string)
         if numberoffiles>0:
             for savefile in files_with_string:
-                rects[savefile]=self.get_text_box(savefile.split('.txt')[0], 40, (WINDOW_WIDTH / 2, WINDOW_HEIGHT * (0.3+(int(files_with_string.index(savefile))*0.2))),
+                rects[savefile]=get_text_box(savefile.split('.txt')[0], 40, (WINDOW_WIDTH / 2, WINDOW_HEIGHT * (0.3+(int(files_with_string.index(savefile))*0.2))),
                      OPAQUERED)
         else:
-            self.get_text_box('No save files found!', 40,
+            get_text_box('No save files found!', 40,
                          (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.3),
                           OPAQUERED)
         return rects
@@ -411,12 +279,12 @@ class systemhandler:
                    "When you're done for the day, return to town here",
                    'Now get mining! We need those shards!']
         rects = {}
-        self.draw_background(level1minesceneimage)
-        self.draw_mainclicktarget()
-        self.draw_location_icon(towniconimage)
+        draw_background(level1minesceneimage)
+        draw_mainclicktarget()
+        draw_location_icon(towniconimage)
         if self.promptnumber < len(self.tuttext):
-            self.get_text_box(self.tuttext[self.promptnumber], 40, Text_Location_TalkCenter, OPAQUERED, horiboxscale=0.1, vertboxscale=3, alignment='left')
-            self.draw_speaker_icon(robot_boss_image)
+            get_text_box(self.tuttext[self.promptnumber], 40, Text_Location_TalkCenter, OPAQUERED, horiboxscale=0.1, vertboxscale=3, alignment='left')
+            draw_speaker_icon(robot_boss_image)
             if self.promptnumber == 4:
                 backpack_rect = pygame.Rect((WINDOW_WIDTH * 0.006, WINDOW_HEIGHT * 0.63),
                                             (medium_icon))  # location, size
@@ -432,7 +300,7 @@ class systemhandler:
                                         (medium_icon))  # location, size
                 return_icon_image = pygame.transform.scale(towniconimage, (medium_icon))
                 self.screen.blit(return_icon_image, icon_rect)
-        rects['next_button'] = self.draw_next_button()
+        rects['next_button'] = draw_next_button()
         return rects
 
     def tutorial_events(self, rects):
@@ -443,19 +311,19 @@ class systemhandler:
 
     def mine_level_1_rects_and_images(self):
         rects = {}
-        self.draw_background(level1minesceneimage)
-        rects['mainclicktarget'] = self.draw_mainclicktarget()
-        rects['corner_location_icon'] = self.draw_location_icon(towniconimage)
+        draw_background(level1minesceneimage)
+        rects['mainclicktarget'] = draw_mainclicktarget()
+        rects['corner_location_icon'] = draw_location_icon(towniconimage)
         if self.good_click == 1:
             self.timer += 1
-            self.get_text_box('Mined some shards!', 30,
+            get_text_box('Mined some shards!', 30,
                          (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * (0.4-(0.15*(self.timer/60)))), OPAQUERED)
             if self.timer >= 60:
                 self.timer = 0
                 self.good_click = 0
         if self.sshard_found == 1:
             self.stimer += 1
-            self.get_text_box('Found a special shard!', 30,
+            get_text_box('Found a special shard!', 30,
                          (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * (0.4-(0.15*(self.stimer/60)))), OPAQUERED)
             if self.stimer >= 60:
                 self.stimer = 0
@@ -474,7 +342,7 @@ class systemhandler:
 
     def town_rects_and_images(self):
         rects = {}
-        self.draw_background(quainttownimage)
+        draw_background(quainttownimage)
         rects['minersguild_rect'] = pygame.Rect((WINDOW_WIDTH*0.59, WINDOW_HEIGHT*0.34),
                                                 (medium_icon))  # location, size
         self.screen.blit(minersguildicon, rects['minersguild_rect'])
@@ -488,11 +356,11 @@ class systemhandler:
         self.screen.blit(treebuildingicon, rects['treebuilding_rect'])
 
         town_text = ['Back to the mines',"Miner's Guild", 'Strange Tree Building']
-        self.get_text_box(town_text[0], 30,
+        get_text_box(town_text[0], 30,
                      (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.89), OPAQUERED)
-        self.get_text_box(town_text[1], 30,
+        get_text_box(town_text[1], 30,
                      (WINDOW_WIDTH * 0.66, WINDOW_HEIGHT * 0.58), OPAQUERED)
-        self.get_text_box(town_text[2], 30,
+        get_text_box(town_text[2], 30,
                      (WINDOW_WIDTH * 0.34, WINDOW_HEIGHT * 0.58), OPAQUERED)
         return rects
 
@@ -504,45 +372,7 @@ class systemhandler:
         if rects['treebuilding_rect'].collidepoint(self.event.pos):
             self.change_state('TREEBUILDING')
 
-    def tree_building_rects_and_images(self):
-        self.draw_background(treebuildingscene)
-        rects = {}
 
-        rects['fightbutton']=self.draw_fight_button()
-        if self.player1health > 0:
-            rects['Robot_Companion'] = pygame.Rect((WINDOW_WIDTH*0.33, WINDOW_HEIGHT*0.54),
-                                                    (medium_icon))  # location, size
-            self.screen.blit(ShopRobotMiner_icon, rects['Robot_Companion'])
-            self.get_text_box((self.player1health), 50,
-                         (WINDOW_WIDTH * 0.4, WINDOW_HEIGHT * (0.48)),
-                         RED)
-        if self.player2health > 0:
-            rects['small_basic_demon'] = pygame.Rect((WINDOW_WIDTH*0.53, WINDOW_HEIGHT*0.54),
-                                                    (medium_icon))  # location, size
-            self.screen.blit(SmallBasicDemon_icon, rects['small_basic_demon'])
-            self.get_text_box((self.player2health), 50,
-                         (WINDOW_WIDTH * 0.6, WINDOW_HEIGHT * (0.48)),
-                         RED)
-
-        if self.player1health <= 0 or self.player2health <= 0:
-            if self.player1health <= 0:
-                self.get_text_box((self.player1name + ' has died!'), 50,
-                             (WINDOW_WIDTH * 0.22, WINDOW_HEIGHT * (0.48)),
-                             OPAQUERED)
-
-            if self.player2health <= 0:
-                self.get_text_box((self.player2name + ' has died!'), 50,
-                             (WINDOW_WIDTH * 0.66, WINDOW_HEIGHT * 0.48),
-                             OPAQUERED)
-            self.fightActive = False
-        else:
-            self.fightActive = True
-        return rects
-
-    def tree_building_events(self, rects): #treat this as a combat function
-        if rects['fightbutton'].collidepoint(self.event.pos):
-            if self.fightActive:
-                self.basicattackPhase()
 
     def basicattackPhase(self):
         self.player1health -= self.player2attack
@@ -553,10 +383,10 @@ class systemhandler:
         self.mouse_pos = pygame.mouse.get_pos()
         rects = {}
         cost_texts = self.get_cost()  # just running get_cost and reading values
-        self.draw_background(minersguildimage)
+        draw_background(minersguildimage)
 
         #Rects
-        rects['corner_location_icon'] = self.draw_location_icon(towniconimage)
+        rects['corner_location_icon'] = draw_location_icon(towniconimage)
         rects['ShopRobotMiner_rect'] = pygame.Rect((WINDOW_WIDTH*0.2, WINDOW_HEIGHT*0.3),
                                                 medium_icon)
         rects['str_up_rect'] = pygame.Rect((WINDOW_WIDTH*0.435, WINDOW_HEIGHT*0.3), medium_icon)  # location, size
@@ -565,16 +395,16 @@ class systemhandler:
         #Text
         minerswelcome = ['Welcome to the Miner\'s Guild!', 'Spend your shards to upgrade your mining skill']
         descripts = ['Cute little robot guy','Increase amount of shards mined per click (Costs '+ str(self.minerstrcost)+' Shards)','Hire worker for passive Shard mining (Costs '+str(self.workercost)+' Special Shards)']
-        self.get_text_box(minerswelcome[0], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.635), OPAQUERED, horiboxscale=0.09)
-        self.get_text_box(minerswelcome[1], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.72), OPAQUERED, horiboxscale=0.09)
+        get_text_box(minerswelcome[0], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.635), OPAQUERED, horiboxscale=0.09)
+        get_text_box(minerswelcome[1], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.72), OPAQUERED, horiboxscale=0.09)
         if rects['ShopRobotMiner_rect'].collidepoint(self.mouse_pos):
-            self.get_text_box(descripts[0], 30, (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.55),
+            get_text_box(descripts[0], 30, (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.55),
                      OPAQUERED, horiboxscale=0.09)
         if rects['str_up_rect'].collidepoint(self.mouse_pos):
-            self.get_text_box(descripts[1], 30, (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.55),
+            get_text_box(descripts[1], 30, (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.55),
                          OPAQUERED, horiboxscale=0.09)
         if rects['hire_worker_rect'].collidepoint(self.mouse_pos):
-            self.get_text_box(descripts[2], 30, (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.55),
+            get_text_box(descripts[2], 30, (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.55),
                          OPAQUERED, horiboxscale=0.09)
 
         #Blits
@@ -583,30 +413,30 @@ class systemhandler:
         self.darken_on_click(rects['ShopRobotMiner_rect'], ShopRobotMiner_icon, DarkenedShopRobotMiner_icon)
 
         if self.str_up == 1:
-            self.get_text_box(cost_texts['str_upgrade_text'][0], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
+            get_text_box(cost_texts['str_upgrade_text'][0], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
             self.timer += 1
             self.worker_hired = 0
             if self.timer >= 90:
                 self.str_up, self.timer = 0, 0
         elif self.str_up == 2:
-            self.get_text_box(cost_texts['str_upgrade_text'][1], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
+            get_text_box(cost_texts['str_upgrade_text'][1], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
             self.timer += 1
             if self.timer >= 90:
                 self.str_up, self.timer = 0, 0
         if self.worker_hired == 1:
-            self.get_text_box(cost_texts['worker_hired_text'][0], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
+            get_text_box(cost_texts['worker_hired_text'][0], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
             self.timer += 1
             self.str_up = 0
             if self.timer >= 90:
                 self.worker_hired, self.timer = 0, 0
         elif self.worker_hired == 2:
-            self.get_text_box(cost_texts['worker_hired_text'][1], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
+            get_text_box(cost_texts['worker_hired_text'][1], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
             self.timer += 1
             self.str_up = 0
             if self.timer >= 90:
                 self.worker_hired, self.timer = 0, 0
         elif self.worker_hired == 3:
-            self.get_text_box(cost_texts['worker_hired_text'][2], 30,
+            get_text_box(cost_texts['worker_hired_text'][2], 30,
                          (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.25), OPAQUERED)
             self.timer += 1
             self.str_up = 0
@@ -653,9 +483,9 @@ class systemhandler:
             # Event handling
             self.game_timer()  # total frame number
             self.auto_miners()
-            self.backpack_rect = self.draw_packpack_icon()
-            self.statistics_rect = self.draw_stats_icon()
-            self.settings_rect = self.draw_settings_icon()
+            self.backpack_rect = draw_backpack_icon()
+            self.statistics_rect = draw_stats_icon()
+            self.settings_rect = draw_settings_icon()
             rects = self.draw_scene(self.state)
 
             for self.event in pygame.event.get():
@@ -703,7 +533,7 @@ class systemhandler:
             pygame.display.flip()
             self.clock.tick(self.FPS)
 
-playgame = systemhandler()
+playgame = SystemHandler()
 
 # Quit Pygame
 # pygame.quit()

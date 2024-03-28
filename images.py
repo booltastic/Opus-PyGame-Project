@@ -1,7 +1,6 @@
 import pygame
 from config import *
 
-
 def load_img(imagefile, size):
     imageicon = pygame.image.load(imagefile)
     imageicon = pygame.transform.scale(imageicon, (size))
