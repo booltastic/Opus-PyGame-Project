@@ -2,8 +2,6 @@ import pygame
 from config import *
 from images import *
 from gamedata import *
-#from main import SystemHandler
-
 
 def draw_inventory():
     shard_string = 'Shards: ' + str(int(GameData.shard))
@@ -28,22 +26,20 @@ def draw_statistics():
     get_text_box(minestr_string, 35, (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.6), BLACK, 'center', 1)
 
 def draw_mainclicktarget():
-    # self.get_mouse_status()
-    # timer = int(counter / 3)
-    # for i in range(0, 1):
-    #     if timer % 3 == i:
-    #         glowing_background_rect = background_glow_icon1.get_rect(center=screen_center)
-    #         screen.blit(background_glow_icon1, glowing_background_rect)
-    # for i in range(1, 2):
-    #     if timer % 3 == i:
-    #         glowing_background_rect = background_glow_icon2.get_rect(center=screen_center)
-    #         screen.blit(background_glow_icon2, glowing_background_rect)
-    # for i in range(2, 3):
-    #     if timer % 3 == i:
-    #         glowing_background_rect = background_glow_icon3.get_rect(center=screen_center)
-    #         screen.blit(background_glow_icon3, glowing_background_rect)
-    glowing_background_rect = background_glow_icon3.get_rect(center=screen_center)
-    screen.blit(background_glow_icon3, glowing_background_rect)
+    get_mouse_status()
+    timer = int(GameData.counter / 3)
+    for i in range(0, 1):
+        if timer % 3 == i:
+            glowing_background_rect = background_glow_icon1.get_rect(center=screen_center)
+            screen.blit(background_glow_icon1, glowing_background_rect)
+    for i in range(1, 2):
+        if timer % 3 == i:
+            glowing_background_rect = background_glow_icon2.get_rect(center=screen_center)
+            screen.blit(background_glow_icon2, glowing_background_rect)
+    for i in range(2, 3):
+        if timer % 3 == i:
+            glowing_background_rect = background_glow_icon3.get_rect(center=screen_center)
+            screen.blit(background_glow_icon3, glowing_background_rect)
 
     glowingrockicon_rect = glowingrockicon.get_rect(center=screen_center)
     darken_on_click(glowingrockicon_rect, glowingrockicon, glowingrockicon2)
@@ -82,10 +78,10 @@ def draw_background(locationimage):
 
 #Draw settings icon
 def draw_settings_icon():
-    # if counter>60:
-    settings_rect = settings_icon.get_rect(center=(WINDOW_WIDTH * 0.937, WINDOW_HEIGHT * 0.065))
-    screen.blit(settings_icon, settings_rect)
-    return settings_rect
+    if GameData.counter>60:
+        settings_rect = settings_icon.get_rect(center=(WINDOW_WIDTH * 0.937, WINDOW_HEIGHT * 0.065))
+        screen.blit(settings_icon, settings_rect)
+        return settings_rect
 
 # Next Button
 def draw_button(buttontext, buttonheight=0.95):

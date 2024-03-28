@@ -18,12 +18,11 @@ pygame.mixer.init()
 class SystemHandler:
     def __init__(self):
         #self.state = 'INTRO'
-        self.counter = 0
+        #self.counter = 0
         # Set up the display
         pygame.display.set_caption("Practice Clicker Game")
         self.clock = pygame.time.Clock()
         self.FPS = 30
-        self.timecounter = 0
         self.thirdFPS = 0
         self.timer = 0
         self.stimer = 0
@@ -49,9 +48,6 @@ class SystemHandler:
     def get_mouse_status(self):
         self.mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
         self.mouse_pos = pygame.mouse.get_pos()
-
-    def increment_counter(self):
-        self.counter += 1
 
     # Make shard
     def make_click_shard(self):
@@ -118,7 +114,7 @@ class SystemHandler:
         rects = {}
         introstring = 'Welcome to Mine.Cafe!'
         newgametext = ['New Game', 'Load Game']
-        timer = int(self.counter)
+        timer = int(GameData.counter)
         background_image = pygame.transform.scale(introimage, (WINDOW_HEIGHT, WINDOW_HEIGHT))
         if timer < 60:
             HEIGHT = WINDOW_HEIGHT*(1.5-(timer/60)) #blit exactly off screen. at 0.5, it will be centered. want it to take 60 frames.
@@ -133,7 +129,7 @@ class SystemHandler:
         return rects
 
     def intro_events(self, rects):
-        if self.counter>60:
+        if GameData.counter>60:
             if rects['new_game_rect'].collidepoint(self.event.pos):
                 self.change_state('TUTORIAL')
             if rects['load_game_rect'].collidepoint(self.event.pos):
@@ -462,7 +458,7 @@ class SystemHandler:
             screen.fill(BLACK)  # Passively fills all blank space
             # Event handling
             #self.game_timer()  # total frame number
-            self.increment_counter()
+            GameData.counter += 1
             self.auto_miners()
             self.backpack_rect = draw_backpack_icon()
             self.statistics_rect = draw_stats_icon()
@@ -478,7 +474,7 @@ class SystemHandler:
                 elif self.event.type == pygame.MOUSEBUTTONDOWN:
                     if GameData.state == 'INTRO':
                         self.intro_events(rects)
-                        if self.counter>60:
+                        if GameData.counter>60:
                             if self.settings_rect.collidepoint(self.event.pos):
                                 self.change_state('SETTINGS')
                     elif self.settings_rect.collidepoint(self.event.pos):

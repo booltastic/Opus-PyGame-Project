@@ -2,18 +2,18 @@ import pygame
 from config import *
 
 def load_img(imagefile, size):
-    imageicon = pygame.image.load(imagefile)
+    imageicon = pygame.image.load('Assets/'+imagefile)
     imageicon = pygame.transform.scale(imageicon, (size))
     return imageicon
 
-introimage = pygame.image.load('IntroScreen.jpeg')
-quainttownimage = pygame.image.load('QuaintTownSquare.png')
-level1minesceneimage = pygame.image.load('RockyMineLevel1.png')
-minersguildimage = pygame.image.load('MinersGuildInterior.png')
-loadgamescreenimage = pygame.image.load('LoadGameScreen.jpg')
-backpackscreenimage = pygame.image.load('Backpack_Background_Image.jpg')
-stats_page_image = pygame.image.load('Statistic_Background_Image.jpg')
-treebuildingscene = pygame.image.load('TreeBuilding.png')
+introimage = pygame.image.load('Assets/'+'IntroScreen.jpeg')
+quainttownimage = pygame.image.load('Assets/'+'QuaintTownSquare.png')
+level1minesceneimage = pygame.image.load('Assets/'+'RockyMineLevel1.png')
+minersguildimage = pygame.image.load('Assets/'+'MinersGuildInterior.png')
+loadgamescreenimage = pygame.image.load('Assets/'+'LoadGameScreen.jpg')
+backpackscreenimage = pygame.image.load('Assets/'+'Backpack_Background_Image.jpg')
+stats_page_image = pygame.image.load('Assets/'+'Statistic_Background_Image.jpg')
+treebuildingscene = pygame.image.load('Assets/'+'TreeBuilding.png')
 
 towniconimage = load_img('TownIcon.png', small_icon)
 treebuildingicon = load_img('TreeBuilding.png', medium_icon)

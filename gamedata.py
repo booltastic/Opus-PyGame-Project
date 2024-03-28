@@ -11,6 +11,7 @@ class GameData:
     minerstrcost = 0
     workercost = 0
     fightActive = False
+    counter = 0
 
 class Fighter:
     def __init__(self, name,health,attack):
