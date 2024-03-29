@@ -1,5 +1,4 @@
 
-
 class GameData:
     state = 'INTRO'
     laststate = 'INTRO'
@@ -13,11 +12,3 @@ class GameData:
     fightActive = False
     counter = 0
 
-class Fighter:
-    def __init__(self, name,health,attack):
-        self.name = name
-        self.health = health
-        self.attack = attack
-
-mainplayer = Fighter('Robot Boy',10,3)
-goblinenemy1 = Fighter('Spinny Gob', 12, 2)

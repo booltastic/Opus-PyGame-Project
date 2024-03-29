@@ -460,8 +460,9 @@ class SystemHandler:
             #self.game_timer()  # total frame number
             GameData.counter += 1
             self.auto_miners()
-            self.backpack_rect = draw_backpack_icon()
-            self.statistics_rect = draw_stats_icon()
+            if GameData.state not in ('INTRO','LOADGAME'):
+                self.backpack_rect = draw_backpack_icon()
+                self.statistics_rect = draw_stats_icon()
             self.settings_rect = draw_settings_icon()
             rects = self.draw_scene(GameData.state)
 
