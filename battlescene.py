@@ -8,7 +8,9 @@ def tree_building_rects_and_images():
     rects = {}
     rects['backbutton'] = draw_back_button()
     rects['fightbutton'] = draw_fight_button()
+    fightphase = 1
 
+    #Draw player first position
     if mainplayer.health > 0:
         rects['Robot_Companion'] = pygame.Rect((WINDOW_WIDTH * 0.33, WINDOW_HEIGHT * 0.54),
                                                (medium_icon))  # location, size
@@ -16,6 +18,8 @@ def tree_building_rects_and_images():
         get_text_box((mainplayer.health), 50,
                           (WINDOW_WIDTH * 0.4, WINDOW_HEIGHT * (0.48)),
                           RED)
+
+    #Draw enemy player first position
     if goblinenemy1.health > 0:
         rects['small_basic_demon'] = pygame.Rect((WINDOW_WIDTH * 0.53, WINDOW_HEIGHT * 0.54),
                                                  (medium_icon))  # location, size
@@ -24,6 +28,7 @@ def tree_building_rects_and_images():
                           (WINDOW_WIDTH * 0.6, WINDOW_HEIGHT * (0.48)),
                           RED)
 
+    #Text that pops up when first position dies
     if mainplayer.health <= 0 or goblinenemy1.health <= 0:
         if mainplayer.health <= 0:
             get_text_box((mainplayer.name + ' has died!'), 50,
@@ -39,7 +44,9 @@ def tree_building_rects_and_images():
         GameData.fightActive = True
     return rects
 
+round=0
 def basicattackPhase():
+
     mainplayer.health -= goblinenemy1.attack
     goblinenemy1.health -= mainplayer.attack
 
