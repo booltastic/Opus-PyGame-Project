@@ -345,7 +345,16 @@ class SystemHandler:
         if rects['minersguild_rect'].collidepoint(self.event.pos):
             self.change_state('MINERSGUILD')
         if rects['treebuilding_rect'].collidepoint(self.event.pos):
+            playerfighter1 = Fighter('Robot Boy1', 10, 3, True, robot_boss_image)
+            playerfighter2 = Fighter('Robot Boy2', 8, 2, True, ShopRobotMiner_icon)
+            playerfighter3 = Fighter('Robot Boy3', 8, 2, True, SmallBasicDemon_icon)
+            goblinenemy1 = Fighter('Spinny Gob1', 12, 2, False, robot_boss_image)
+            goblinenemy2 = Fighter('Spinny Gob2', 12, 2, False, SmallBasicDemon_icon)
+            goblinenemy3 = Fighter('Spinny Gob3', 12, 2, False, robot_boss_image)
+            gameunits.FriendlyUnitList = [playerfighter1, playerfighter2]
+            gameunits.OpponentUnitList = [goblinenemy1, goblinenemy2, goblinenemy3]
             self.change_state('TREEBUILDING')
+
 
     def miners_guild_rects_and_images(self):
         self.mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
@@ -442,7 +451,11 @@ class SystemHandler:
 
     def tree_building_events(self, rects):  # treat this as a combat function
         if rects['fightbutton'].collidepoint(self.event.pos):
-            if GameData.fightActive:
+            if len(gameunits.OpponentUnitList) >= 1 and len(gameunits.FriendlyUnitList) >= 1:
+                fightActive = True
+            else:
+                fightActive = False
+            if fightActive:
                 basicattackPhase()
         if rects['backbutton'].collidepoint(self.event.pos):
             GameData.state = 'TOWN'
@@ -506,6 +519,7 @@ class SystemHandler:
                         self.miners_guild_events(rects)
                     elif GameData.state == 'TREEBUILDING':
                         self.tree_building_events(rects)
+
 
             # Update the display
             pygame.display.flip()
