@@ -1,16 +1,15 @@
-import pygame
 import os
 import sys
 import random
-from drawfunctions import *
-from images import *
-from config import *
-from gamedata import *
+import time
 from battlescene import *
+import pygame
 
 # Initialize Pygame
 pygame.init()
 pygame.mixer.init()
+
+#time.sleep(2)
 
 #You are hired to mine this mysterious shard. There's some sort of value you're unaware of. You get better, and start to
 # recruit your own miners. Over time, the mine depletes. But you can venture further...
@@ -28,6 +27,7 @@ class SystemHandler:
         self.stimer = 0
         self.saveprogress = True
         self.gamesavesuccessful = False
+        self.quitstate = False
 
         # Global Variables
         self.titlestring = 'The Clicker Game'
@@ -43,7 +43,7 @@ class SystemHandler:
         self.mouse_clicked = pygame.mouse.get_pressed()[0]  # check once for happy mouse status function
         self.mouse_pos = pygame.mouse.get_pos()
 
-        self.play_game()
+        # self.play_game()
 
     def get_mouse_status(self):
         self.mouse_clicked = pygame.mouse.get_pressed()[0] #continuously is checking each frame
@@ -110,31 +110,6 @@ class SystemHandler:
         if sceneinput == 'TREEBUILDING':
             return tree_building_rects_and_images()
 
-    def intro_rects_and_images(self):
-        rects = {}
-        introstring = 'Welcome to Mine.Cafe!'
-        newgametext = ['New Game', 'Load Game']
-        timer = int(GameData.counter)
-        background_image = pygame.transform.scale(introimage, (WINDOW_HEIGHT, WINDOW_HEIGHT))
-        if timer < 60:
-            HEIGHT = WINDOW_HEIGHT*(1.5-(timer/60)) #blit exactly off screen. at 0.5, it will be centered. want it to take 60 frames.
-        else:
-            HEIGHT = WINDOW_HEIGHT/2
-        background_rect = background_image.get_rect(center=(WINDOW_WIDTH / 2, HEIGHT))
-        screen.blit(background_image, background_rect)
-        if timer > 60:
-            get_text_box(introstring,50,(WINDOW_WIDTH/2, WINDOW_HEIGHT*0.23), OPAQUERED)
-            rects['new_game_rect'] = get_text_box(newgametext[0], 50, (WINDOW_WIDTH*0.35, WINDOW_HEIGHT*0.53), BLUE)
-            rects['load_game_rect'] = get_text_box(newgametext[1], 50, (WINDOW_WIDTH*0.65, WINDOW_HEIGHT*0.53), BLUE)
-        return rects
-
-    def intro_events(self, rects):
-        if GameData.counter>60:
-            if rects['new_game_rect'].collidepoint(self.event.pos):
-                self.change_state('TUTORIAL')
-            if rects['load_game_rect'].collidepoint(self.event.pos):
-                self.change_state('LOADGAME')
-
     def statistics_rects_and_images(self):
         rects = {}
         draw_background(stats_page_image)
@@ -160,6 +135,7 @@ class SystemHandler:
     def settings_page(self):
         draw_background(loadgamescreenimage)
         rects={}
+
         if GameData.laststate != 'INTRO':
             rects['save_game_rect']=get_text_box('Save Game', 40,
                          (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.3),
@@ -169,7 +145,7 @@ class SystemHandler:
                          OPAQUERED)
             if self.saveprogress == False:
                 get_text_box('Brooo cmon you just started XD', 40,
-                             (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.8),
+                             (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.9),
                              OPAQUERED)
                 self.gamesavesuccessful = False
             if self.gamesavesuccessful == True:
@@ -182,6 +158,9 @@ class SystemHandler:
                          (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.5),
                          OPAQUERED)
         rects['back_button'] = draw_back_button()
+        rects['quit_game'] = get_text_box('Quit Game', 40,
+                                          (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.7),
+                                          OPAQUERED)
         return rects
 
     def settings_page_events(self, rects):
@@ -205,6 +184,9 @@ class SystemHandler:
                 GameData.state = 'INTRO'
             else:
                 GameData.state=GameData.laststate
+        if rects['quit_game'].collidepoint(self.event.pos):
+            self.quitstate = True
+
 
     def loadgame_rects_and_images(self):
         draw_background(loadgamescreenimage)
@@ -245,6 +227,31 @@ class SystemHandler:
                 GameData.state = 'INTRO'
             else:
                 GameData.state = 'SETTINGS'
+
+    def intro_rects_and_images(self):
+        rects = {}
+        introstring = 'Welcome to Mine.Cafe!'
+        newgametext = ['New Game', 'Load Game']
+        #timer = int(GameData.counter)
+        background_image = pygame.transform.scale(introimage, (WINDOW_HEIGHT, WINDOW_HEIGHT))
+        if GameData.counter < 60:
+            HEIGHT = WINDOW_HEIGHT*(1.5-(GameData.counter/60)) #blit exactly off screen. at 0.5, it will be centered. want it to take 60 frames.
+        else:
+            HEIGHT = WINDOW_HEIGHT/2
+        background_rect = background_image.get_rect(center=(WINDOW_WIDTH / 2, HEIGHT))
+        screen.blit(background_image, background_rect)
+        if GameData.counter > 60:
+            get_text_box(introstring,50,(WINDOW_WIDTH/2, WINDOW_HEIGHT*0.23), OPAQUERED)
+            rects['new_game_rect'] = get_text_box(newgametext[0], 50, (WINDOW_WIDTH*0.35, WINDOW_HEIGHT*0.53), BLUE)
+            rects['load_game_rect'] = get_text_box(newgametext[1], 50, (WINDOW_WIDTH*0.65, WINDOW_HEIGHT*0.53), BLUE)
+        return rects
+
+    def intro_events(self, rects):
+        if GameData.counter>60:
+            if rects['new_game_rect'].collidepoint(self.event.pos):
+                self.change_state('TUTORIAL')
+            if rects['load_game_rect'].collidepoint(self.event.pos):
+                self.change_state('LOADGAME')
 
     def tutorial_rects_and_images(self):  # where basically everything is drawn and established
         self.tuttext = ['Welcome to the Mines of Esswun, kid!', 'We need you to mine these blue shards.',
@@ -472,6 +479,7 @@ class SystemHandler:
             # Event handling
             #self.game_timer()  # total frame number
             GameData.counter += 1
+            #print(GameData.counter)
             self.auto_miners()
             if GameData.state not in ('INTRO','LOADGAME'):
                 self.backpack_rect = draw_backpack_icon()
@@ -480,14 +488,18 @@ class SystemHandler:
             rects = self.draw_scene(GameData.state)
 
             for self.event in pygame.event.get():
-                if self.event.type == pygame.QUIT:  # should be the only IF, so the game will always close first. i think
+                if self.event.type == pygame.QUIT or self.quitstate:  # should be the only IF, so the game will always close first. i think
                     with open('Autosaved Game.txt', 'w') as file:
                         savestatelist = GameData.totalmined, GameData.shard, GameData.shard, GameData.workers, GameData.minerstr
                         file.write(str(savestatelist))
-                    running = False
-                elif self.event.type == pygame.MOUSEBUTTONDOWN:
+                    # Quit Pygame
+                    pygame.quit()
+                    sys.exit()
+                    #running = False
+                elif self.event.type == pygame.MOUSEBUTTONDOWN and self.event.button == 1:
                     if GameData.state == 'INTRO':
                         self.intro_events(rects)
+                        #GameData.counter += 61
                         if GameData.counter>60:
                             if self.settings_rect.collidepoint(self.event.pos):
                                 self.change_state('SETTINGS')
@@ -526,7 +538,8 @@ class SystemHandler:
             self.clock.tick(self.FPS)
 
 playgame = SystemHandler()
+#pygame.time.wait(1000)
 
-# Quit Pygame
-pygame.quit()
-sys.exit()
+if __name__ == "__main__":
+    playgame.play_game()
+

@@ -1,4 +1,3 @@
-import pygame
 from config import *
 
 def load_img(imagefile, size):

@@ -1,4 +1,3 @@
-from config import *
 from images import *
 #Unit Locations
 

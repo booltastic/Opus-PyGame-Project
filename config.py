@@ -11,7 +11,8 @@ else:
     WINDOW_WIDTH, WINDOW_HEIGHT = 800, 600
     fontscale = 0.7
 
-screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+#screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT),pygame.RESIZABLE)
 
 # Set Colors
 CLEAR = pygame.Color(0, 0, 0, 0)

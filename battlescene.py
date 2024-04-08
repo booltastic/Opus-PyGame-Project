@@ -1,7 +1,4 @@
-from images import *
-from config import *
 from drawfunctions import *
-from gamedata import *
 from combatdata import *
 
 def draw_battle_positions(rects):
