@@ -1,6 +1,8 @@
 from drawfunctions import *
 from combatdata import *
 
+combatphase = 1
+
 def draw_battle_positions(rects):
 
     get_unit_positions()
@@ -28,11 +30,24 @@ def tree_building_rects_and_images():
 
     return rects
 
-def basicattackPhase():
-    # if len(gameunits.OpponentUnitList) >= 1 or len(gameunits.FriendlyUnitList) >= 1:
-    #     fightActive = True
-    # else:
-    #     fightActive = False
+def continueCombat():
+    global combatphase
+    if combatphase == 1:
+        startofbattlephase()
+        combatphase += 1
+    if combatphase == 2:
+        damagephase()
+
+
+def basicgobability():
+    if combatphase == 1:
+        gameunits.FriendlyUnitList[0].health -= 1
+
+def startofbattlephase():
+
+    pass
+
+def damagephase():
     if gameunits.OpponentUnitList[0].health > 0:
         gameunits.OpponentUnitList[0].health -= gameunits.FriendlyUnitList[0].attack
     if gameunits.OpponentUnitList[0].health <= 0:
@@ -41,9 +56,3 @@ def basicattackPhase():
         gameunits.FriendlyUnitList[0].health -= gameunits.OpponentUnitList[0].attack
     if gameunits.FriendlyUnitList[0].health <= 0:
         gameunits.FriendlyUnitList.pop(0)
-        #OpponentUnitList[0]
-    #print(OpponentUnitList[0].health)
-    #print(OpponentUnitList[0].position)
-
-    #goblinenemy1.health -= mainplayer.attack
-

@@ -1,5 +1,6 @@
 import pygame
 
+
 screen_res = 'small'
 if screen_res == 'medium':
     WINDOW_WIDTH, WINDOW_HEIGHT = 1200, 900
@@ -11,7 +12,10 @@ else:
     WINDOW_WIDTH, WINDOW_HEIGHT = 800, 600
     fontscale = 0.7
 
-#screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+
+# Initialize Pygame
+pygame.init()
+pygame.mixer.init()
 screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT),pygame.RESIZABLE)
 
 # Set Colors

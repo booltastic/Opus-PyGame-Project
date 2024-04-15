@@ -18,33 +18,44 @@ eposition5 = WINDOW_WIDTH * 0.78, WINDOW_HEIGHT * 0.54
 
 
 class Fighter:
-    def __init__(self, name, health, attack, friendly, icon):
+    def __init__(self, name, health, attack, friendly, unit):
         self.name = name
         self.health = health
         self.attack = attack
         self.positionint = None
         self.position = None
         self.friendly = friendly
-        self.rect = icon
+        if unit == 'basicgob':
+            self.rect = SmallBasicDemon_icon
+        if unit == 'roboboss':
+            self.rect = robot_boss_image
+        if unit == 'robominer':
+            self.rect = ShopRobotMiner_icon
+            #basicgobability()
 
-playerfighter1 = Fighter('Robot Boy1',10,3,True, robot_boss_image)
-playerfighter2 = Fighter('Robot Boy2',8,2,True, ShopRobotMiner_icon)
-playerfighter3 = Fighter('Robot Boy3',8,2,True, SmallBasicDemon_icon)
-goblinenemy1 = Fighter('Spinny Gob1', 12, 2,False, robot_boss_image)
-goblinenemy2 = Fighter('Spinny Gob2', 12, 2,False, SmallBasicDemon_icon)
-goblinenemy3 = Fighter('Spinny Gob3', 12, 2,False, robot_boss_image)
-#
+
+
 class UnitLists:
     def __init__(self):
-        self.FriendlyUnitList = [playerfighter1, playerfighter2]
-        self.OpponentUnitList = [goblinenemy1, goblinenemy2, goblinenemy3]
+        self.FriendlyUnitList = []
+        self.OpponentUnitList = []
 
 gameunits = UnitLists()
 fightActive = False
 
+playerfighter1 = Fighter('Robot Boy1', 12, 3, True, 'roboboss')
+playerfighter2 = Fighter('Robot Boy2', 8, 2, True, 'robominer')
+playerfighter3 = Fighter('Robot Boy3', 8, 2, True, 'basicgob')
+goblinenemy1 = Fighter('Spinny Gob1', 12, 2, False, 'roboboss')
+goblinenemy2 = Fighter('Spinny Gob2', 8, 2, False, 'basicgob')
+goblinenemy3 = Fighter('Spinny Gob3', 12, 2, False, 'roboboss')
+gameunits.FriendlyUnitList = [playerfighter1, playerfighter2]
+gameunits.OpponentUnitList = [goblinenemy1, goblinenemy2, goblinenemy3]
+
 def get_unit_positions():
     for x in gameunits.FriendlyUnitList:
         x.positionint = gameunits.FriendlyUnitList.index(x)
+        #print(gameunits.FriendlyUnitList)
         if x.positionint==0:
             x.position = fposition1
         if x.positionint==1:

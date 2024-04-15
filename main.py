@@ -1,18 +1,8 @@
 import os
 import sys
 import random
-import time
 from battlescene import *
 import pygame
-
-# Initialize Pygame
-pygame.init()
-pygame.mixer.init()
-
-#time.sleep(2)
-
-#You are hired to mine this mysterious shard. There's some sort of value you're unaware of. You get better, and start to
-# recruit your own miners. Over time, the mine depletes. But you can venture further...
 
 class SystemHandler:
     def __init__(self):
@@ -352,14 +342,6 @@ class SystemHandler:
         if rects['minersguild_rect'].collidepoint(self.event.pos):
             self.change_state('MINERSGUILD')
         if rects['treebuilding_rect'].collidepoint(self.event.pos):
-            playerfighter1 = Fighter('Robot Boy1', 10, 3, True, robot_boss_image)
-            playerfighter2 = Fighter('Robot Boy2', 8, 2, True, ShopRobotMiner_icon)
-            playerfighter3 = Fighter('Robot Boy3', 8, 2, True, SmallBasicDemon_icon)
-            goblinenemy1 = Fighter('Spinny Gob1', 12, 2, False, robot_boss_image)
-            goblinenemy2 = Fighter('Spinny Gob2', 12, 2, False, SmallBasicDemon_icon)
-            goblinenemy3 = Fighter('Spinny Gob3', 12, 2, False, robot_boss_image)
-            gameunits.FriendlyUnitList = [playerfighter1, playerfighter2]
-            gameunits.OpponentUnitList = [goblinenemy1, goblinenemy2, goblinenemy3]
             self.change_state('TREEBUILDING')
 
 
@@ -463,7 +445,7 @@ class SystemHandler:
             else:
                 fightActive = False
             if fightActive:
-                basicattackPhase()
+                continueCombat()
         if rects['backbutton'].collidepoint(self.event.pos):
             GameData.state = 'TOWN'
 
@@ -473,6 +455,7 @@ class SystemHandler:
     # Game loop
     def play_game(self):
         running = True
+        pygame.event.wait()
         while running:
             # Clear the screen
             screen.fill(BLACK)  # Passively fills all blank space
