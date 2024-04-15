@@ -39,9 +39,6 @@ def continueCombat():
         damagephase()
 
 
-def basicgobability():
-    if combatphase == 1:
-        gameunits.FriendlyUnitList[0].health -= 1
 
 def startofbattlephase():
 

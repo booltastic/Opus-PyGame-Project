@@ -25,15 +25,24 @@ class Fighter:
         self.positionint = None
         self.position = None
         self.friendly = friendly
-        if unit == 'basicgob':
+        self.unit = unit
+        if self.unit == 'basicgob':
             self.rect = SmallBasicDemon_icon
-        if unit == 'roboboss':
+        if self.unit == 'roboboss':
             self.rect = robot_boss_image
-        if unit == 'robominer':
+        if self.unit == 'robominer':
             self.rect = ShopRobotMiner_icon
-            #basicgobability()
+        self.unit_abilities()
+
+    def unit_abilities(self):
+        self.ability_list = []
+        if self.unit == 'basicgob':
+            basicgobability()
 
 
+def basicgobability():
+    if combatphase == 1:
+        gameunits.FriendlyUnitList[0].health -= 1
 
 class UnitLists:
     def __init__(self):
