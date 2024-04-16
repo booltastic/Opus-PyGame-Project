@@ -1,6 +1,5 @@
 import pygame
 
-
 screen_res = 'small'
 if screen_res == 'medium':
     WINDOW_WIDTH, WINDOW_HEIGHT = 1200, 900

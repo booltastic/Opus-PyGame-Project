@@ -2,6 +2,10 @@ import os
 import sys
 import random
 from battlescene import *
+from gamedata import *
+from config import *
+from drawfunctions import *
+from combatdata import *
 import pygame
 
 class SystemHandler:
@@ -440,7 +444,7 @@ class SystemHandler:
 
     def tree_building_events(self, rects):  # treat this as a combat function
         if rects['fightbutton'].collidepoint(self.event.pos):
-            if len(gameunits.OpponentUnitList) >= 1 and len(gameunits.FriendlyUnitList) >= 1:
+            if len(gameunits.OpponentUnitList) >= 1 and len(gameunits.FriendlyUnitList) >= 1: #both teams have at least 1 unit alive
                 fightActive = True
             else:
                 fightActive = False

@@ -1,4 +1,8 @@
 from images import *
+from gamedata import *
+from drawfunctions import *
+import pygame
+
 #Unit Locations
 
 #Combat Scene Unit Placement
@@ -32,17 +36,13 @@ class Fighter:
             self.rect = robot_boss_image
         if self.unit == 'robominer':
             self.rect = ShopRobotMiner_icon
-        self.unit_abilities()
+        #self.unit_abilities()
 
-    def unit_abilities(self):
-        self.ability_list = []
-        if self.unit == 'basicgob':
-            basicgobability()
+    # def unit_abilities(self):
+    #     self.ability_list = []
+    #     if self.unit == 'basicgob':
+    #         basicgobability()
 
-
-def basicgobability():
-    if combatphase == 1:
-        gameunits.FriendlyUnitList[0].health -= 1
 
 class UnitLists:
     def __init__(self):
@@ -52,13 +52,14 @@ class UnitLists:
 gameunits = UnitLists()
 fightActive = False
 
-playerfighter1 = Fighter('Robot Boy1', 12, 3, True, 'roboboss')
+playerfighter1 = Fighter('Robot Boy1', 12, 3, True, 'robominer')
 playerfighter2 = Fighter('Robot Boy2', 8, 2, True, 'robominer')
-playerfighter3 = Fighter('Robot Boy3', 8, 2, True, 'basicgob')
+playerfighter3 = Fighter('Robot Boy3', 8, 2, True, 'robominer')
 goblinenemy1 = Fighter('Spinny Gob1', 12, 2, False, 'roboboss')
 goblinenemy2 = Fighter('Spinny Gob2', 8, 2, False, 'basicgob')
 goblinenemy3 = Fighter('Spinny Gob3', 12, 2, False, 'roboboss')
-gameunits.FriendlyUnitList = [playerfighter1, playerfighter2]
+
+gameunits.FriendlyUnitList = [playerfighter1, playerfighter2, playerfighter3]
 gameunits.OpponentUnitList = [goblinenemy1, goblinenemy2, goblinenemy3]
 
 def get_unit_positions():
@@ -87,3 +88,71 @@ def get_unit_positions():
             x.position = eposition4
         if x.positionint == 4:
             x.position = eposition5
+
+
+def draw_battle_positions(rects):
+    get_unit_positions()
+    for x in gameunits.FriendlyUnitList:
+        if x.position is not None:
+            rects[x] = pygame.Rect((x.position), (small_icon))  # location, size
+            screen.blit(x.rect, rects[x])
+            get_text_box(x.attack, 50, (x.position[0] + 15, x.position[1] - 20), RED, horiboxscale=float(0.7),
+                         vertboxscale=float(0.5))  # width then height
+            get_text_box(x.health, 50, (x.position[0] + 70, x.position[1] - 20), BLUE, horiboxscale=float(0.7),
+                         vertboxscale=float(0.5))  # width then height
+    for x in gameunits.OpponentUnitList:
+        if x.position is not None:
+            rects[x] = pygame.Rect((x.position), (small_icon))  # location, size
+            screen.blit(x.rect, rects[x])
+            get_text_box((x.attack), 50, (x.position[0] + 15, x.position[1] - 20), RED, horiboxscale=float(0.7),
+                         vertboxscale=float(0.5))
+            get_text_box((x.health), 50, (x.position[0] + 70, x.position[1] - 20), BLUE, horiboxscale=float(0.7),
+                         vertboxscale=float(0.5))  # width then height
+    return rects
+
+
+def tree_building_rects_and_images():
+    draw_background(treebuildingscene)
+    rects = {}
+    rects['fightbutton'] = draw_fight_button()
+    rects['backbutton'] = draw_back_button()
+
+    draw_battle_positions(rects)
+    return rects
+
+
+def continueCombat(): # high level combat flow
+    GameData.combatphase += 1
+    if GameData.combatphase == 1: #initially will be 0
+        startofbattlephase() #runs below STOB phase
+    if GameData.combatphase == 2:
+        damagephase()
+        GameData.combatphase -= 1
+
+
+def startofbattlephase():
+    #print(GameData.combatphase)
+
+    basicrobotability() #subtract 1 hp, no conditions
+    basicrobotability()
+    basicrobotability()
+    # function to go through all STOB abilities
+
+    # for x in gameunits.FriendlyUnitList:
+    #     pass
+
+
+
+def basicrobotability():
+    gameunits.OpponentUnitList[0].health -= 1
+    print(gameunits.FriendlyUnitList[0].name + ' dealt 1 damage to '+gameunits.OpponentUnitList[0].name)
+
+def damagephase():
+    if gameunits.OpponentUnitList[0].health > 0:
+        gameunits.OpponentUnitList[0].health -= gameunits.FriendlyUnitList[0].attack
+    if gameunits.OpponentUnitList[0].health <= 0:
+        gameunits.OpponentUnitList.pop(0)  # remove from list
+    if gameunits.FriendlyUnitList[0].health > 0:
+        gameunits.FriendlyUnitList[0].health -= gameunits.OpponentUnitList[0].attack
+    if gameunits.FriendlyUnitList[0].health <= 0:
+        gameunits.FriendlyUnitList.pop(0)  # remove from list

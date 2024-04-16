@@ -1,17 +1,5 @@
 from images import *
-
-class GameData:
-    state = 'INTRO'
-    laststate = 'INTRO'
-    shard = 0
-    totalmined = 0
-    sshard = 0
-    minerstr = 1
-    workers = 0
-    minerstrcost = 0
-    workercost = 0
-    fightActive = False
-    counter = 61
+from gamedata import *
 
 def draw_inventory():
     shard_string = 'Shards: ' + str(int(GameData.shard))
