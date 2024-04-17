@@ -38,10 +38,10 @@ class Fighter:
             self.rect = ShopRobotMiner_icon
         #self.unit_abilities()
 
-    # def unit_abilities(self):
-    #     self.ability_list = []
-    #     if self.unit == 'basicgob':
-    #         basicgobability()
+    def unit_abilities(self):
+        self.ability_list = []
+        if self.unit == 'robominer':
+            basicrobotability()
 
 
 class UnitLists:
@@ -132,10 +132,10 @@ def continueCombat(): # high level combat flow
 
 def startofbattlephase():
     #print(GameData.combatphase)
-
-    basicrobotability() #subtract 1 hp, no conditions
-    basicrobotability()
-    basicrobotability()
+    for x in gameunits.FriendlyUnitList:
+        x.unit_abilities()
+    for x in gameunits.OpponentUnitList:
+        x.unit_abilities()
     # function to go through all STOB abilities
 
     # for x in gameunits.FriendlyUnitList:
