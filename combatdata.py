@@ -30,12 +30,14 @@ class Fighter:
         self.position = None
         self.friendly = friendly
         self.unit = unit
+        self.abilitynull = True
         if self.unit == 'basicgob':
             self.rect = SmallBasicDemon_icon
         if self.unit == 'roboboss':
             self.rect = robot_boss_image
         if self.unit == 'robominer':
             self.rect = ShopRobotMiner_icon
+            self.abilitynull = False
         #self.unit_abilities()
 
     def unit_abilities(self):
@@ -45,22 +47,39 @@ class Fighter:
 
 
 class UnitLists:
+    playerfighter1 = Fighter('Robot Boy 1', 12, 3, True, 'robominer')
+    playerfighter2 = Fighter('Robot Boy 2', 8, 2, True, 'robominer')
+    playerfighter3 = Fighter('Robot Boy 3', 8, 2, True, 'robominer')
+    goblinenemy1 = Fighter('Spinny Gob 1', 12, 2, False, 'roboboss')
+    goblinenemy2 = Fighter('Spinny Gob ', 8, 2, False, 'basicgob')
+    goblinenemy3 = Fighter('Spinny Gob 3', 12, 2, False, 'roboboss')
+
     def __init__(self):
         self.FriendlyUnitList = []
         self.OpponentUnitList = []
 
+    def reset_objects(self):
+        UnitLists.playerfighter1 = Fighter('Robot Boy 1', 12, 3, True, 'robominer')
+        UnitLists.playerfighter2 = Fighter('Robot Boy 2', 8, 2, True, 'robominer')
+        UnitLists.playerfighter3 = Fighter('Robot Boy 3', 8, 2, True, 'robominer')
+        UnitLists.goblinenemy1 = Fighter('Spinny Gob 1', 12, 2, False, 'roboboss')
+        UnitLists.goblinenemy2 = Fighter('Spinny Gob ', 8, 2, False, 'basicgob')
+        UnitLists.goblinenemy3 = Fighter('Spinny Gob 3', 12, 2, False, 'roboboss')
+
+        gameunits.FriendlyUnitList = [UnitLists.playerfighter1, UnitLists.playerfighter2, UnitLists.playerfighter3]
+        gameunits.OpponentUnitList = [UnitLists.goblinenemy1, UnitLists.goblinenemy2, UnitLists.goblinenemy3]
+
 gameunits = UnitLists()
 fightActive = False
+#
+# playerfighter1 = Fighter('Robot Boy 1', 12, 3, True, 'robominer')
+# playerfighter2 = Fighter('Robot Boy 2', 8, 2, True, 'robominer')
+# playerfighter3 = Fighter('Robot Boy 3', 8, 2, True, 'robominer')
+# goblinenemy1 = Fighter('Spinny Gob 1', 12, 2, False, 'roboboss')
+# goblinenemy2 = Fighter('Spinny Gob ', 8, 2, False, 'basicgob')
+# goblinenemy3 = Fighter('Spinny Gob 3', 12, 2, False, 'roboboss')
 
-playerfighter1 = Fighter('Robot Boy1', 12, 3, True, 'robominer')
-playerfighter2 = Fighter('Robot Boy2', 8, 2, True, 'robominer')
-playerfighter3 = Fighter('Robot Boy3', 8, 2, True, 'robominer')
-goblinenemy1 = Fighter('Spinny Gob1', 12, 2, False, 'roboboss')
-goblinenemy2 = Fighter('Spinny Gob2', 8, 2, False, 'basicgob')
-goblinenemy3 = Fighter('Spinny Gob3', 12, 2, False, 'roboboss')
 
-gameunits.FriendlyUnitList = [playerfighter1, playerfighter2, playerfighter3]
-gameunits.OpponentUnitList = [goblinenemy1, goblinenemy2, goblinenemy3]
 
 def get_unit_positions():
     for x in gameunits.FriendlyUnitList:
@@ -118,41 +137,62 @@ def tree_building_rects_and_images():
     rects['backbutton'] = draw_back_button()
 
     draw_battle_positions(rects)
+    get_text_box(GameData.combatlog, 40,
+                 (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.2),
+                 RED)
     return rects
 
 
 def continueCombat(): # high level combat flow
-    GameData.combatphase += 1
-    if GameData.combatphase == 1: #initially will be 0
+
+    if GameData.combatphase == 0: #initially will be 0
         startofbattlephase() #runs below STOB phase
-    if GameData.combatphase == 2:
+    if GameData.combatphase == 1:
         damagephase()
         GameData.combatphase -= 1
 
 
 def startofbattlephase():
     #print(GameData.combatphase)
-    for x in gameunits.FriendlyUnitList:
-        x.unit_abilities()
-    for x in gameunits.OpponentUnitList:
-        x.unit_abilities()
-    # function to go through all STOB abilities
+    #print(len(gameunits.FriendlyUnitList))
+    if GameData.fcombatstep<=len(gameunits.FriendlyUnitList)-1: #from index 0-2 (1-3 in list)
+        GameData.fcombatstep += 1
+        indexfix = GameData.fcombatstep-1
+        GameData.triggeredunit = gameunits.FriendlyUnitList[indexfix].name
+        if gameunits.FriendlyUnitList[indexfix].abilitynull:
+            GameData.fcombatstep += len(gameunits.FriendlyUnitList)
+        else:
+            gameunits.FriendlyUnitList[indexfix].unit_abilities()
 
-    # for x in gameunits.FriendlyUnitList:
-    #     pass
+    elif GameData.ecombatstep<=len(gameunits.OpponentUnitList)-1: #currently iterates through empty list
+        GameData.combatlog = ''
+        GameData.ecombatstep += 1
+        indexfix = GameData.ecombatstep - 1
+        GameData.triggeredunit = gameunits.OpponentUnitList[indexfix].name
+        if gameunits.OpponentUnitList[indexfix].abilitynull:
+            GameData.ecombatstep += len(gameunits.OpponentUnitList)
+            GameData.combatphase += 1
+        else:
+            gameunits.OpponentUnitList[indexfix].unit_abilities()
 
+    else:
+        GameData.combatphase += 1
+        GameData.combatlog = ''
 
 
 def basicrobotability():
     gameunits.OpponentUnitList[0].health -= 1
-    print(gameunits.FriendlyUnitList[0].name + ' dealt 1 damage to '+gameunits.OpponentUnitList[0].name)
+    GameData.combatlog=('Start of Battle: ' + str(GameData.triggeredunit) + ' dealt 1 damage to '+gameunits.OpponentUnitList[0].name)
 
 def damagephase():
     if gameunits.OpponentUnitList[0].health > 0:
         gameunits.OpponentUnitList[0].health -= gameunits.FriendlyUnitList[0].attack
-    if gameunits.OpponentUnitList[0].health <= 0:
-        gameunits.OpponentUnitList.pop(0)  # remove from list
     if gameunits.FriendlyUnitList[0].health > 0:
         gameunits.FriendlyUnitList[0].health -= gameunits.OpponentUnitList[0].attack
+
+    if gameunits.OpponentUnitList[0].health <= 0:
+        gameunits.OpponentUnitList.pop(0)  # remove from list
     if gameunits.FriendlyUnitList[0].health <= 0:
         gameunits.FriendlyUnitList.pop(0)  # remove from list
+    # else:
+    #     GameData.fightActive=False

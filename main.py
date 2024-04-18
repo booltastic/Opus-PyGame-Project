@@ -1,7 +1,6 @@
 import os
 import sys
 import random
-from battlescene import *
 from gamedata import *
 from config import *
 from drawfunctions import *
@@ -346,6 +345,7 @@ class SystemHandler:
         if rects['minersguild_rect'].collidepoint(self.event.pos):
             self.change_state('MINERSGUILD')
         if rects['treebuilding_rect'].collidepoint(self.event.pos):
+            gameunits.reset_objects()
             self.change_state('TREEBUILDING')
 
 
@@ -445,10 +445,10 @@ class SystemHandler:
     def tree_building_events(self, rects):  # treat this as a combat function
         if rects['fightbutton'].collidepoint(self.event.pos):
             if len(gameunits.OpponentUnitList) >= 1 and len(gameunits.FriendlyUnitList) >= 1: #both teams have at least 1 unit alive
-                fightActive = True
+                GameData.fightActive = True
             else:
-                fightActive = False
-            if fightActive:
+                GameData.fightActive = False
+            if GameData.fightActive:
                 continueCombat()
         if rects['backbutton'].collidepoint(self.event.pos):
             GameData.state = 'TOWN'

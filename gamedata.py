@@ -12,3 +12,8 @@ class GameData:
     fightActive = False
     counter = 61
     combatphase = 0
+    combatlog = ''
+    fcombatstep = 0
+    ecombatstep = 0
+    triggeredunit = ''
+    combatactive = False
