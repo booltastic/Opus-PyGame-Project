@@ -346,6 +346,7 @@ class SystemHandler:
             self.change_state('MINERSGUILD')
         if rects['treebuilding_rect'].collidepoint(self.event.pos):
             gameunits.reset_objects()
+            gameunits.reset_unitlists()
             self.change_state('TREEBUILDING')
 
 
