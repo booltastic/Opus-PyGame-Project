@@ -347,6 +347,8 @@ class SystemHandler:
         if rects['treebuilding_rect'].collidepoint(self.event.pos):
             gameunits.reset_objects()
             gameunits.reset_unitlists()
+            GameData.combatlog = ''
+            GameData.combatlog2 = ''
             self.change_state('TREEBUILDING')
 
 

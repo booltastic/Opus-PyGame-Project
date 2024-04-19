@@ -13,7 +13,10 @@ class GameData:
     counter = 61
     combatphase = 0
     combatlog = ''
+    combatlog2 = ''
     fcombatstep = 0
     ecombatstep = 0
     triggeredunit = ''
     combatactive = False
+    triggersactive = False
+    interactionqueue = 0

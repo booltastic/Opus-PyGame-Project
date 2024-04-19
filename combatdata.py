@@ -22,6 +22,9 @@ eposition5 = WINDOW_WIDTH * 0.78, WINDOW_HEIGHT * 0.54
 
 
 class Fighter:
+    FriendlyAbilitiesTriggeredList = []
+    OpponentAbilitiesTriggeredList = []
+
     def __init__(self, name, health, attack, friendly, unit):
         self.name = name
         self.health = health
@@ -30,7 +33,12 @@ class Fighter:
         self.position = None
         self.friendly = friendly
         self.unit = unit
-        self.STOBabilitynull = True
+        self.STOBability = False
+
+        self.takesdamage = False
+        self.dealsdamage = False
+        self.dieability = False
+
         if self.unit == 'basicgob':
             self.rect = SmallBasicDemon_icon
         if self.unit == 'roboboss':
@@ -41,12 +49,57 @@ class Fighter:
         #self.unit_abilities()
 
     def unit_abilities(self):
-        self.ability_list = []
+        #self.ability_list = []
         if self.unit == 'robominer':
-            basicrobotability()
-            self.STOBabilitynull = False
+            if self.STOBability:
+                basicrobotability()
+                self.STOBability = False #once ability triggers, do this to make it only loop once
         if self.unit == 'roboboss':
-            basicrobotability()
+            if self.takesdamage==True:
+                nukeability()
+                self.takesdamage=False
+                self.dealsdamage = False
+        else:
+            self.takesdamage = False
+            self.dealsdamage = False
+
+def check_triggers():
+
+    for x in gameunits.FriendlyUnitList: #about to click continue. both front units have triggers.
+        if x.takesdamage or x.dealsdamage:
+            GameData.triggersactive=True
+            Fighter.FriendlyAbilitiesTriggeredList.append(x) #append active triggered abiltities (the function) (units abilities with If checks in place)
+
+    for x in gameunits.OpponentUnitList:
+        if x.takesdamage or x.dealsdamage:
+            GameData.triggersactive=True
+            Fighter.OpponentAbilitiesTriggeredList.append(x)
+
+def reactions():
+    if GameData.triggersactive:
+        #print('trigs active in reactions: '+ str(Fighter.FriendlyAbilitiesTriggeredList))
+        if GameData.interactionqueue < len(Fighter.FriendlyAbilitiesTriggeredList):  # one ability in queue, if intq 0 <= 1, add 1, fix number
+            GameData.interactionqueue += 1
+            indexfix = GameData.interactionqueue - 1
+            GameData.triggeredunit = Fighter.FriendlyAbilitiesTriggeredList[indexfix]
+            if GameData.interactionqueue > len(Fighter.FriendlyAbilitiesTriggeredList) :  # loop checks that all STOBs have been run and set to false then moves to elif loop
+                GameData.interactionqueue += len(Fighter.FriendlyAbilitiesTriggeredList) #kick out of the loop
+                #GameData.combatphase += 1
+            else:
+                Fighter.FriendlyAbilitiesTriggeredList[indexfix].unit_abilities() #do the thing number in queue
+
+        elif GameData.interactionqueue <= len(Fighter.OpponentAbilitiesTriggeredList) - 1:
+            GameData.combatlog = ''
+            GameData.interactionqueue += 1
+            indexfix = GameData.interactionqueue - 1
+            GameData.triggeredunit = Fighter.OpponentAbilitiesTriggeredList[indexfix]
+            if GameData.interactionqueue > len(Fighter.OpponentAbilitiesTriggeredList) - 1:  # loops checks all STOBS have been run
+                GameData.interactionqueue += len(Fighter.OpponentAbilitiesTriggeredList)
+                GameData.combatphase += 1
+            else:
+                Fighter.OpponentAbilitiesTriggeredList[indexfix].unit_abilities()
+        else:
+            GameData.triggersactive=False
 
 
 class UnitLists:
@@ -68,12 +121,20 @@ gameunits = UnitLists()
 fightActive = False
 
 def basicrobotability():
+    GameData.triggeredunit.dealsdamage = True
+    gameunits.OpponentUnitList[0].takesdamage = True
     gameunits.OpponentUnitList[0].health -= 1
-    GameData.combatlog=('Start of Battle: ' + str(GameData.triggeredunit) + ' dealt 1 damage to '+gameunits.OpponentUnitList[0].name)
+    GameData.combatlog = ''
+    GameData.combatlog2 = ''
+    GameData.combatlog=('Start of Battle: ' + str(GameData.triggeredunit.name) + ' dealt 1 damage to '+gameunits.OpponentUnitList[0].name)
 
 def nukeability(): #have abilities be functions like this, named something specific?
-    gameunits.OpponentUnitList[0].health -= 1
-    GameData.combatlog=('Start of Battle: ' + str(GameData.triggeredunit) + ' dealt 1 damage to '+gameunits.OpponentUnitList[0].name)
+    GameData.triggeredunit.dealsdamage = True #triggers go first, as units will depop after effects. could make fainting tricky
+    gameunits.OpponentUnitList[0].takesdamage = True
+    gameunits.OpponentUnitList[-1].health -= 5
+    GameData.combatlog = ''
+    GameData.combatlog2 = ''
+    GameData.combatlog=('Damaged Reaction: ' + str(GameData.triggeredunit.name) + ' dealt 5 damage to '+gameunits.OpponentUnitList[-1].name)
 
 
 def get_unit_positions():
@@ -113,6 +174,8 @@ def draw_battle_positions(rects):
                          vertboxscale=float(0.5))  # width then height
             get_text_box(x.health, 50, (x.position[0] + 70, x.position[1] - 20), BLUE, horiboxscale=float(0.7),
                          vertboxscale=float(0.5))  # width then height
+            get_text_box(x.name, 20, (x.position[0] + 40, x.position[1] + 100), BLUE, horiboxscale=float(0.1),
+                         vertboxscale=float(0.5))  # width then height
     for x in gameunits.OpponentUnitList:
         if x.position is not None:
             rects[x] = pygame.Rect((x.position), (small_icon))  # location, size
@@ -120,6 +183,8 @@ def draw_battle_positions(rects):
             get_text_box((x.attack), 50, (x.position[0] + 15, x.position[1] - 20), RED, horiboxscale=float(0.7),
                          vertboxscale=float(0.5))
             get_text_box((x.health), 50, (x.position[0] + 70, x.position[1] - 20), BLUE, horiboxscale=float(0.7),
+                         vertboxscale=float(0.5))  # width then height
+            get_text_box((x.name), 20, (x.position[0] + 40, x.position[1] + 100), BLUE, horiboxscale=float(0.1),
                          vertboxscale=float(0.5))  # width then height
     return rects
 
@@ -134,55 +199,78 @@ def tree_building_rects_and_images():
     get_text_box(GameData.combatlog, 40,
                  (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.2),
                  RED)
+    get_text_box(GameData.combatlog2, 40,
+                 (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.25),
+                 RED)
     return rects
 
 
 def continueCombat(): # high level combat flow
 
-    if GameData.combatphase == 0: #initially will be 0
-        startofbattlephase() #runs below STOB phase
-    if GameData.combatphase == 1:
-        damagephase()
-        GameData.combatphase -= 1
+    check_triggers()
+    reactions()
+    #print(GameData.triggersactive)
+    if GameData.triggersactive == False:
+        if GameData.combatphase == 0: #initially will be 0
+            startofbattlephase() #runs below STOB phase
+        if GameData.combatphase == 1:
+            damagephase()
+            GameData.combatphase -= 1
+
+
+    # else:
+    #     for x in attackqueue: #all units with True triggers
+    #         x.triggeredability
 
 
 def startofbattlephase():
 
-    if GameData.fcombatstep<=len(gameunits.FriendlyUnitList)-1: #from index 0-2 (1-3 in list)
+    if GameData.fcombatstep<=len(gameunits.FriendlyUnitList)-1: #from index 0-2 (1-3 in list of units)
         GameData.fcombatstep += 1
         indexfix = GameData.fcombatstep-1
-        GameData.triggeredunit = gameunits.FriendlyUnitList[indexfix].name
-        if gameunits.FriendlyUnitList[indexfix].STOBabilitynull:
+        GameData.triggeredunit = gameunits.FriendlyUnitList[indexfix]
+        if gameunits.FriendlyUnitList[indexfix].STOBability==False: #loop checks that all STOBs have been run and set to false then moves to elif loop
             GameData.fcombatstep += len(gameunits.FriendlyUnitList)
             GameData.combatphase += 1
         else:
             gameunits.FriendlyUnitList[indexfix].unit_abilities()
 
-    elif GameData.ecombatstep<=len(gameunits.OpponentUnitList)-1: #currently iterates through empty list
+    elif GameData.ecombatstep<=len(gameunits.OpponentUnitList)-1:
         GameData.combatlog = ''
         GameData.ecombatstep += 1
         indexfix = GameData.ecombatstep - 1
-        GameData.triggeredunit = gameunits.OpponentUnitList[indexfix].name
-        if gameunits.OpponentUnitList[indexfix].STOBabilitynull:
+        GameData.triggeredunit = gameunits.OpponentUnitList[indexfix]
+        if gameunits.OpponentUnitList[indexfix].STOBability==False: #loops checks all STOBS have been run
             GameData.ecombatstep += len(gameunits.OpponentUnitList)
             GameData.combatphase += 1
         else:
             gameunits.OpponentUnitList[indexfix].unit_abilities()
 
     else:
+
         GameData.combatphase += 1
         GameData.combatlog = ''
+        GameData.combatlog2 = ''
+
+#make generic list of keywords so they can be toggled and run an effect. add attributes to init with if true run this function then set off. damaged, deals damage, dies for now.
 
 def damagephase():
-
+    gameunits.FriendlyUnitList[0].dealsdamage = True
+    gameunits.FriendlyUnitList[0].takesdamage = True
+    gameunits.OpponentUnitList[0].dealsdamage = True
+    gameunits.OpponentUnitList[0].takesdamage = True
     if gameunits.OpponentUnitList[0].health > 0:
         gameunits.OpponentUnitList[0].health -= gameunits.FriendlyUnitList[0].attack
     if gameunits.FriendlyUnitList[0].health > 0:
         gameunits.FriendlyUnitList[0].health -= gameunits.OpponentUnitList[0].attack
-
+    GameData.combatlog = (
+                'Attack Phase: ' + str(gameunits.FriendlyUnitList[0].name) + ' dealt ' + str(gameunits.OpponentUnitList[0].attack) +' damage to ' + gameunits.OpponentUnitList[0].name)
+    GameData.combatlog2 = (
+                'Attack Phase: ' + str(gameunits.OpponentUnitList[0].name) + ' dealt ' + str(gameunits.FriendlyUnitList[0].attack) +' damage to ' + gameunits.FriendlyUnitList[0].name)
     if gameunits.OpponentUnitList[0].health <= 0:
         gameunits.OpponentUnitList.pop(0)  # remove from list
     if gameunits.FriendlyUnitList[0].health <= 0:
         gameunits.FriendlyUnitList.pop(0)  # remove from list
+
     # else:
     #     GameData.fightActive=False
