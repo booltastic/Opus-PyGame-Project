@@ -194,14 +194,21 @@ def tree_building_rects_and_images():
     rects = {}
     rects['fightbutton'] = draw_fight_button()
     rects['backbutton'] = draw_back_button()
-
     draw_battle_positions(rects)
+    if GameData.introfighttext == 0:
+        get_text_box('Hey! I said dont come here! Stand back kid, Ill handle this!', 40,
+                     (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.35),
+                     RED)
     get_text_box(GameData.combatlog, 40,
                  (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.2),
                  RED)
     get_text_box(GameData.combatlog2, 40,
                  (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.25),
                  RED)
+    if GameData.introfight == 1:
+        get_text_box('Get the hell out of here before they come back!', 40,
+                     (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.35),
+                     RED)
     return rects
 
 
@@ -216,7 +223,9 @@ def continueCombat(): # high level combat flow
         if GameData.combatphase == 1:
             damagephase()
             GameData.combatphase -= 1
-
+    if len(gameunits.OpponentUnitList) == 0 or len(gameunits.FriendlyUnitList) == 0:  # both teams have at least 1 unit alive
+        GameData.fightActive = False
+        GameData.introfight = 1
 
     # else:
     #     for x in attackqueue: #all units with True triggers

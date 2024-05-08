@@ -47,7 +47,7 @@ class SystemHandler:
         GameData.shard += (GameData.minerstr / 2)
         GameData.totalmined += (GameData.minerstr / 2)
         sshard_chance = random.randint(1, 300)
-        if sshard_chance >= (50 - GameData.minerstr):
+        if sshard_chance >= (250 - GameData.minerstr):
             self.sshard_found = 1
             if GameData.minerstr < 10:
                 GameData.sshard += 1
@@ -209,7 +209,7 @@ class SystemHandler:
                     content = content.split(', ')
                     if len(content) == 0:
                         pass
-                    GameData.totalmined, GameData.shard, GameData.shard, GameData.workers, GameData.minerstr = float(content[0]), float(content[1]), float(
+                    GameData.totalmined, GameData.shard, GameData.sshard, GameData.workers, GameData.minerstr = float(content[0]), float(content[1]), float(
                         content[2]), float(
                         content[3]), float(content[4])
                     self.change_state('TOWN')
@@ -252,6 +252,7 @@ class SystemHandler:
                    'Click on that glowing rock over there to mine it!',
                    'Your shards and other loot will be stored in this bag', 'You can see your stats here',
                    "When you're done for the day, return to town here",
+                    "And stay away from the Magic Jaywun Tree!",
                    'Now get mining! We need those shards!']
         rects = {}
         draw_background(level1minesceneimage)
@@ -282,12 +283,23 @@ class SystemHandler:
         if rects['next_button'].collidepoint(self.event.pos):
             self.increment_number()
             if self.promptnumber >= len(self.tuttext):
+                self.promptnumber = 0
                 self.change_state('MINELEVEL1')
+
 
     def mine_level_1_rects_and_images(self):
         rects = {}
+        self.minescenetext = ['Well, well, well...', 'Looks like we depleted the mine','And it cleared up a path deeper down!','Go see R0-B0 in the Miners Guild. Tell him I sent you.']
         draw_background(level1minesceneimage)
-        rects['mainclicktarget'] = draw_mainclicktarget()
+        if GameData.totalmined < 1000:
+            rects['mainclicktarget'] = draw_mainclicktarget()
+        else: #once mine is clear
+            if self.promptnumber < len(self.minescenetext)-1: #will not draw Next button on last prompt
+                rects['next_button'] = draw_next_button()
+            if self.promptnumber < len(self.minescenetext):
+                get_text_box(self.minescenetext[self.promptnumber], 40, Text_Location_TalkCenter, OPAQUERED, horiboxscale=0.1,
+                             vertboxscale=3, alignment='left')
+            draw_speaker_icon(robot_boss_image)
         rects['corner_location_icon'] = draw_location_icon(towniconimage)
         if self.good_click == 1:
             self.timer += 1
@@ -310,10 +322,18 @@ class SystemHandler:
             self.good_click = 0
             self.sshard_found = 0
             self.change_state('TOWN')
-        if rects['mainclicktarget'].collidepoint(self.event.pos):
-            self.timer = 0
-            self.good_click = 1
-            self.make_click_shard()
+        if GameData.totalmined < 1000:
+            if rects['mainclicktarget'].collidepoint(self.event.pos):
+                self.timer = 0
+                self.good_click = 1
+                self.make_click_shard()
+        else:
+            if self.promptnumber < len(self.minescenetext)-1:
+                if rects['next_button'].collidepoint(self.event.pos):
+                    if self.promptnumber < len(self.minescenetext)-1: #to not let it advance past last text shown
+                        self.increment_number()
+            else:
+                GameData.level1minedepleted = 1
 
     def town_rects_and_images(self):
         rects = {}
@@ -346,7 +366,8 @@ class SystemHandler:
             self.change_state('MINERSGUILD')
         if rects['treebuilding_rect'].collidepoint(self.event.pos):
             gameunits.reset_objects()
-            gameunits.reset_unitlists()
+            if GameData.introfight == 0:
+                gameunits.reset_unitlists()
             GameData.combatlog = ''
             GameData.combatlog2 = ''
             self.change_state('TREEBUILDING')
@@ -369,6 +390,11 @@ class SystemHandler:
         #Text
         minerswelcome = ['Welcome to the Miner\'s Guild!', 'Spend your shards to upgrade your mining skill']
         descripts = ['Cute little robot guy','Increase amount of shards mined per click (Costs '+ str(GameData.minerstrcost)+' Shards)','Hire worker for passive Shard mining (Costs '+str(GameData.workercost)+' Special Shards)']
+        if GameData.level1minedepleted == 1:
+            descripts = ['R0-B0',
+                         'Increase amount of shards mined per click (Costs ' + str(GameData.minerstrcost) + ' Shards)',
+                         'Hire worker for passive Shard mining (Costs ' + str(GameData.workercost) + ' Special Shards)']
+
         get_text_box(minerswelcome[0], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.635), OPAQUERED, horiboxscale=0.09)
         get_text_box(minerswelcome[1], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.72), OPAQUERED, horiboxscale=0.09)
         if rects['ShopRobotMiner_rect'].collidepoint(self.mouse_pos):
@@ -397,19 +423,19 @@ class SystemHandler:
             self.timer += 1
             if self.timer >= 90:
                 self.str_up, self.timer = 0, 0
-        if self.worker_hired == 1:
+        if self.worker_hired == 1: #successful
             get_text_box(cost_texts['worker_hired_text'][0], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
             self.timer += 1
             self.str_up = 0
             if self.timer >= 90:
                 self.worker_hired, self.timer = 0, 0
-        elif self.worker_hired == 2:
+        elif self.worker_hired == 2: #not enough sshards
             get_text_box(cost_texts['worker_hired_text'][1], 30, (WINDOW_WIDTH*0.5,WINDOW_HEIGHT*0.25), OPAQUERED)
             self.timer += 1
             self.str_up = 0
             if self.timer >= 90:
                 self.worker_hired, self.timer = 0, 0
-        elif self.worker_hired == 3:
+        elif self.worker_hired == 3: #limit reached
             get_text_box(cost_texts['worker_hired_text'][2], 30,
                          (WINDOW_WIDTH * 0.5, WINDOW_HEIGHT * 0.25), OPAQUERED)
             self.timer += 1
@@ -432,11 +458,11 @@ class SystemHandler:
         if rects['hire_worker_rect'].collidepoint(self.event.pos):
             self.timer = 0
             self.str_up = 0
-            if GameData.shard >= GameData.workercost and GameData.workers<self.workerlimit:
-                GameData.shard -= GameData.workercost
+            if GameData.sshard >= GameData.workercost and GameData.workers<self.workerlimit:
+                GameData.sshard -= GameData.workercost
                 self.worker_hired = 1
                 GameData.workers += 1
-            elif GameData.shard >= GameData.workercost and GameData.workers>=self.workerlimit: #notifys worker limit reached
+            elif GameData.sshard >= GameData.workercost and GameData.workers>=self.workerlimit: #notifys worker limit reached
                 self.worker_hired = 3
             else:
                 self.worker_hired = 2
@@ -449,9 +475,8 @@ class SystemHandler:
         if rects['fightbutton'].collidepoint(self.event.pos):
             if len(gameunits.OpponentUnitList) >= 1 and len(gameunits.FriendlyUnitList) >= 1: #both teams have at least 1 unit alive
                 GameData.fightActive = True
-            else:
-                GameData.fightActive = False
             if GameData.fightActive:
+                GameData.introfighttext = 1
                 continueCombat()
         if rects['backbutton'].collidepoint(self.event.pos):
             GameData.state = 'TOWN'
@@ -470,7 +495,8 @@ class SystemHandler:
             #self.game_timer()  # total frame number
             GameData.counter += 1
             #print(GameData.counter)
-            self.auto_miners()
+            if GameData.totalmined <= 1000:
+                self.auto_miners()
             if GameData.state not in ('INTRO','LOADGAME'):
                 self.backpack_rect = draw_backpack_icon()
                 self.statistics_rect = draw_stats_icon()
@@ -480,7 +506,7 @@ class SystemHandler:
             for self.event in pygame.event.get():
                 if self.event.type == pygame.QUIT or self.quitstate:  # should be the only IF, so the game will always close first. i think
                     with open('Autosaved Game.txt', 'w') as file:
-                        savestatelist = GameData.totalmined, GameData.shard, GameData.shard, GameData.workers, GameData.minerstr
+                        savestatelist = GameData.totalmined, GameData.shard, GameData.sshard, GameData.workers, GameData.minerstr
                         file.write(str(savestatelist))
                     # Quit Pygame
                     pygame.quit()

@@ -34,5 +34,5 @@ backpack_icon = load_img('BackpackImage.jpg', small_icon)
 
 # Characters
 robot_boss_image = load_img('RobotBossImage.jpg', small_icon)
-ShopRobotMiner_icon = load_img('ShopRobotMiner.jpg', small_icon)
+ShopRobotMiner_icon = load_img('ShopRobotMiner.jpg', medium_icon)
 SmallBasicDemon_icon = load_img('SmallBasicDemon.jpg', small_icon)
