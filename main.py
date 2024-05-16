@@ -25,13 +25,14 @@ class SystemHandler:
         # Global Variables
         self.titlestring = 'The Clicker Game'
         self.promptnumber = 0
+        self.introrobopromptnumber = 0
         self.mouseclick = 0
         self.str_up = 0
         self.strength = 1
         self.good_click = 0
         self.sshard_found = 0
         self.worker_hired = 0
-        self.workerlimit = 10
+        self.workerlimit = 5
 
         self.mouse_clicked = pygame.mouse.get_pressed()[0]  # check once for happy mouse status function
         self.mouse_pos = pygame.mouse.get_pos()
@@ -102,6 +103,8 @@ class SystemHandler:
             return self.statistics_rects_and_images()
         if sceneinput == 'TREEBUILDING':
             return tree_building_rects_and_images()
+        if sceneinput == 'ROBOWORKSHOP':
+            return self.roboworkshop_rects_and_images()
 
     def statistics_rects_and_images(self):
         rects = {}
@@ -470,6 +473,10 @@ class SystemHandler:
             self.change_state('TOWN')
             self.str_up = 0
             self.worker_hired = 0
+        if rects['ShopRobotMiner_rect'].collidepoint(self.event.pos) and GameData.level1minedepleted == 1:
+            self.change_state('ROBOWORKSHOP')
+            self.str_up = 0
+            self.worker_hired = 0
 
     def tree_building_events(self, rects):  # treat this as a combat function
         if rects['fightbutton'].collidepoint(self.event.pos):
@@ -480,6 +487,50 @@ class SystemHandler:
                 continueCombat()
         if rects['backbutton'].collidepoint(self.event.pos):
             GameData.state = 'TOWN'
+
+    def roboworkshop_rects_and_images(self):  # treat this as a combat function
+        rects = {}
+        draw_background(roboworkshopbackground)
+        self.introroboworkshoptext = ['So Big Boss entrusted you to excavate the cave further...','You look pretty strong! I can see why!',
+                                      'Okay well let me ask you a few questions','u strong or u like magic r wat ?']
+
+        # rects['minersguild_rect'] = pygame.Rect((WINDOW_WIDTH * 0.59, WINDOW_HEIGHT * 0.34),
+        #                                         (medium_icon))  # location, size
+        # screen.blit(minersguildicon, rects['minersguild_rect'])
+
+        #Generate 3 images of muscle, magic, n maybe 1 more over arching trait? time to nail down gameplay LMFAO
+        #Runs should last ~30min. Cave dive, have a sprite map for each level, unlock goodies, then at the end you carry over x amount of things to restart with
+        #Can get deeper each run
+        #Typical-ish gear system. Helmet, Chest,Legs, Boots, Gloves, Two Hands, Amulet
+        #Each fight, you gain proficiency bonuses for all the specific gear you are wearing. (ie. Iron Helmet)
+        #All proficiencies start at 0.
+        #You can find new gear, craft new gear, buy new gear.
+        #Gaining proficiency sends you down a skill tree where you can learn weapon abilities that can synergize with other gear
+        #All gear has either a basic path or better path depending on gear rarity?
+        #Next steps:
+        # Robo can use the 1000 shards to craft starting gear of your choice. This is like currency.
+        # Each stage you can mine (until depleted) and give the shards to Robo to craft next level gear. (Incentive to do so? Leaving prev gear proficiency behind? Carry over?)
+        # Initially offers a sword, spell amulet, bow, strength gloves
+        # Shard sword - 1: Deals +1 dmg per turn
+        # Spell Book - 1: Magic Dart, +1 dmg per turn
+        # Bow - 1: Arrow attack, +1 dmg per turn
+        # Gloves - 1: Fist attack, +1 dmg per turn
+
+        #5 slot party. Can add companions or objects. ie 4 Rocks. Ranged attacks trigger each turn. Auto aims at first enemy unless set otherwise
+
+        get_text_box(self.introroboworkshoptext[self.introrobopromptnumber], 30,
+                     (WINDOW_WIDTH * 0.34, WINDOW_HEIGHT * 0.58), OPAQUERED)
+        if self.introrobopromptnumber == 2:
+            get_text_box('about yourself to help you gear up.', 30,
+                         (WINDOW_WIDTH * 0.34, WINDOW_HEIGHT * 0.62), OPAQUERED)
+        rects['next_button'] = draw_next_button()
+        return rects
+
+    def roboworkshop_events(self,rects):
+        if rects['next_button'].collidepoint(self.event.pos):
+            if self.introrobopromptnumber < len(self.introroboworkshoptext) - 1:  # to not let it advance past last text shown
+                self.introrobopromptnumber += 1
+                print(self.introrobopromptnumber)
 
     def increment_number(self):
         self.promptnumber += 1
@@ -547,6 +598,8 @@ class SystemHandler:
                         self.miners_guild_events(rects)
                     elif GameData.state == 'TREEBUILDING':
                         self.tree_building_events(rects)
+                    elif GameData.state == 'ROBOWORKSHOP':
+                        self.roboworkshop_events(rects)
 
 
             # Update the display
