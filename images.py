@@ -13,6 +13,7 @@ loadgamescreenimage = pygame.image.load('Assets/'+'LoadGameScreen.jpg')
 backpackscreenimage = pygame.image.load('Assets/'+'Backpack_Background_Image.jpg')
 stats_page_image = pygame.image.load('Assets/'+'Statistic_Background_Image.jpg')
 treebuildingscene = pygame.image.load('Assets/'+'TreeBuilding.png')
+roboworkshopbackground = pygame.image.load('Assets/'+'RoboWorkshop.jpg')
 
 towniconimage = load_img('TownIcon.png', small_icon)
 treebuildingicon = load_img('TreeBuilding.png', medium_icon)
