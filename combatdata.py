@@ -25,7 +25,8 @@ class Fighter:
     FriendlyAbilitiesTriggeredList = []
     OpponentAbilitiesTriggeredList = []
 
-    def __init__(self, name, health, attack, friendly, unit):
+    def __init__(self, name, health, attack, friendly, unit, helmet=None,
+                 chest=None,legs=None,lefthand=None,righthand=None,gloves=None,feet=None):
         self.name = name
         self.health = health
         self.attack = attack
@@ -34,6 +35,19 @@ class Fighter:
         self.friendly = friendly
         self.unit = unit
         self.STOBability = False
+
+        #Gear
+        self.helmet = helmet
+        self.chest = chest #self.chest = GoblinBossArmor
+        self.legs = legs
+        self.lefthand = lefthand
+        self.righthand = righthand
+        self.gloves = gloves
+        self.feet = feet
+
+        self.gear_ability_list = [self.helmet,self.chest,self.legs,self.lefthand,self.righthand,self.gloves,self.feet]
+        self.modifyinitialstats() #only run for when object is created with gear pre-equipped
+        #self.unit_ability_list = []
 
         self.takesdamage = False
         self.dealsdamage = False
@@ -47,6 +61,9 @@ class Fighter:
             self.rect = ShopRobotMiner_icon
 
         #self.unit_abilities()
+    def modifyinitialstats(self):
+        for x in self.gear_ability_list: #iterates through all gear and runs its stat adjustments
+            x.gearstats()
 
     def unit_abilities(self):
         #self.ability_list = []
@@ -75,7 +92,7 @@ def check_triggers():
             GameData.triggersactive=True
             Fighter.OpponentAbilitiesTriggeredList.append(x)
 
-def reactions():
+def reactions(): #Executes any triggers that are activated
     if GameData.triggersactive:
         #print('trigs active in reactions: '+ str(Fighter.FriendlyAbilitiesTriggeredList))
         if GameData.interactionqueue < len(Fighter.FriendlyAbilitiesTriggeredList):  # one ability in queue, if intq 0 <= 1, add 1, fix number

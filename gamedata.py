@@ -23,3 +23,8 @@ class GameData:
     triggersactive = False
     interactionqueue = 0
     level1minedepleted = 0
+
+class Items:
+    def GoblinAdvancedGear(self):
+        statability =
+
