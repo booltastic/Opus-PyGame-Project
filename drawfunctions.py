@@ -1,3 +1,4 @@
+from gamedata import GameData
 from images import *
 from gamedata import *
 

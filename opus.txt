@@ -1,0 +1,25 @@
+
+My progress summary
+Added features
+
+Quick Description
+I've added some new features, but these have all come with slowdowns and hurdles where a lot of time has been spent thinking and learning.
+
+Proof of my progress
+Videos can't play in this area yet
+Completion
+65%
+
+Newly Completed Milestones
+Reassess progress
+Achievements
+This time through, a lot of the work has been drafting ideas of where to take the game so I can develop a new plan going forward. It's so easy to get feature creep, and every time I remind myself I need to take smaller steps, I seem to actually make good progress. I'm pivoting the game to be a more "relaxed" RPG autobattler type game. So far I've added a little more narrative to help bring it there, as well as implemented the first versions of how "fights" will play out. I also have a very basic Equipment and Ability system mostly set up in the background.
+
+Learnings
+Keep a plan in mind, keep goals easy and not too lofty. They'll be worked up to. For this update I've also spent a lot more time messing around with different modules and importing scripts within a project.
+
+Challenges
+Lots of Python concepts are stacking on top of each other, so I need to make sure I'm slowing down and commenting out my code for what the intent of every line is and what it's doing. Getting down battle logic is very challenging. Being able to set unit order, have units exchange attacks, and have their gear affect their stats and abilities, has been tricky.
+
+Next Steps
+The next steps will likely be continuing to refine the gear system, and then make some basic abilities work. I can use the "Jaywun Tree" scene to continue playtesting combat and abilities. Once that feels good, I definitely want to look into adding some small animations, and eventually I would like to add a tilemap feature that allows movement and exploration. However, for now I will be marking this goal as complete and will likely continue this goal with a new post and new milestones. Thanks for following!

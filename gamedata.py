@@ -3,7 +3,7 @@ class GameData:
     state = 'INTRO'
     laststate = 'INTRO'
     shard = 0
-    totalmined = 999
+    totalmined = 990
     sshard = 0
     minerstr = 1
     workers = 0
@@ -24,7 +24,7 @@ class GameData:
     interactionqueue = 0
     level1minedepleted = 0
 
-class Items:
-    def GoblinAdvancedGear(self):
-        statability =
+
+
+
 

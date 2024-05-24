@@ -1,6 +1,7 @@
 from images import *
 from gamedata import *
 from drawfunctions import *
+from ItemsAndAbilities import *
 import pygame
 
 #Unit Locations
@@ -45,9 +46,9 @@ class Fighter:
         self.gloves = gloves
         self.feet = feet
 
-        self.gear_ability_list = [self.helmet,self.chest,self.legs,self.lefthand,self.righthand,self.gloves,self.feet]
-        self.modifyinitialstats() #only run for when object is created with gear pre-equipped
-        #self.unit_ability_list = []
+        self.gear_list = [self.helmet,self.chest,self.legs,self.lefthand,self.righthand,self.gloves,self.feet]
+        self.ability_list = []
+        self.modifystats()  # only run for when object is created with gear pre-equipped
 
         self.takesdamage = False
         self.dealsdamage = False
@@ -60,42 +61,48 @@ class Fighter:
         if self.unit == 'robominer':
             self.rect = ShopRobotMiner_icon
 
-        #self.unit_abilities()
-    def modifyinitialstats(self):
-        for x in self.gear_ability_list: #iterates through all gear and runs its stat adjustments
-            x.gearstats()
+    def modifystats(self):
+        for x in self.gear_list: #iterates through all gear
+            if x is not None: #if gear slot is populated
+
+                self.health += x.health
+                self.attack += x.attack
+                self.ability_list.append(x.gearability)
+                print(self.ability_list)
 
     def unit_abilities(self):
-        #self.ability_list = []
-        if self.unit == 'robominer':
-            if self.STOBability:
-                basicrobotability()
-                self.STOBability = False #once ability triggers, do this to make it only loop once
-        if self.unit == 'roboboss':
-            if self.takesdamage==True:
-                nukeability()
-                self.takesdamage=False
-                self.dealsdamage = False
-        else:
-            self.takesdamage = False
-            self.dealsdamage = False
+        # pass
+        # #self.ability_list = []
+        # # if self.unit == 'robominer':
+        # #     if self.STOBability:
+        # #         basicrobotability()
+        # #         self.STOBability = False #once ability triggers, do this to make it only loop once
+        # # if self.unit == 'roboboss':
+        # #     if self.takesdamage==True:
+        # #         nukeability()
+        # #         self.takesdamage=False
+        # #         self.dealsdamage = False
+        # # else:
+        self.takesdamage = False
+        self.dealsdamage = False
 
 def check_triggers():
 
     for x in gameunits.FriendlyUnitList: #about to click continue. both front units have triggers.
         if x.takesdamage or x.dealsdamage:
             GameData.triggersactive=True
-            Fighter.FriendlyAbilitiesTriggeredList.append(x) #append active triggered abiltities (the function) (units abilities with If checks in place)
+            #Fighter.FriendlyAbilitiesTriggeredList.append(x) #append active triggered abiltities (the function) (units abilities with If checks in place)
 
     for x in gameunits.OpponentUnitList:
         if x.takesdamage or x.dealsdamage:
             GameData.triggersactive=True
-            Fighter.OpponentAbilitiesTriggeredList.append(x)
+            #Fighter.OpponentAbilitiesTriggeredList.append(x)
 
 def reactions(): #Executes any triggers that are activated
+    print(Fighter.FriendlyAbilitiesTriggeredList)
     if GameData.triggersactive:
         #print('trigs active in reactions: '+ str(Fighter.FriendlyAbilitiesTriggeredList))
-        if GameData.interactionqueue < len(Fighter.FriendlyAbilitiesTriggeredList):  # one ability in queue, if intq 0 <= 1, add 1, fix number
+        if GameData.interactionqueue < len(Fighter.FriendlyAbilitiesTriggeredList):  # one ability in queue, if int 0 <= 1, add 1, fix number
             GameData.interactionqueue += 1
             indexfix = GameData.interactionqueue - 1
             GameData.triggeredunit = Fighter.FriendlyAbilitiesTriggeredList[indexfix]
@@ -128,7 +135,7 @@ class UnitLists:
         UnitLists.goblinenemy1 = Fighter('Spinny Gob 1', 12, 2, False, 'basicgob')
         UnitLists.goblinenemy2 = Fighter('Spinny Gob 2', 8, 2, False, 'basicgob')
         UnitLists.goblinenemy3 = Fighter('Spinny Gob 3', 12, 2, False, 'basicgob')
-        UnitLists.MiningBoss = Fighter('Robo-Mining Boss', 40, 15, True, 'roboboss')
+        UnitLists.MiningBoss = Fighter('Robo-Mining Boss', 12, 15, True, 'roboboss', chest=GoblinBossChestArmor)
 
     def reset_unitlists(self):
         gameunits.FriendlyUnitList = [UnitLists.MiningBoss]
@@ -136,23 +143,6 @@ class UnitLists:
 
 gameunits = UnitLists()
 fightActive = False
-
-def basicrobotability():
-    GameData.triggeredunit.dealsdamage = True
-    gameunits.OpponentUnitList[0].takesdamage = True
-    gameunits.OpponentUnitList[0].health -= 1
-    GameData.combatlog = ''
-    GameData.combatlog2 = ''
-    GameData.combatlog=('Start of Battle: ' + str(GameData.triggeredunit.name) + ' dealt 1 damage to '+gameunits.OpponentUnitList[0].name)
-
-def nukeability(): #have abilities be functions like this, named something specific?
-    GameData.triggeredunit.dealsdamage = True #triggers go first, as units will depop after effects. could make fainting tricky
-    gameunits.OpponentUnitList[0].takesdamage = True
-    gameunits.OpponentUnitList[-1].health -= 5
-    GameData.combatlog = ''
-    GameData.combatlog2 = ''
-    GameData.combatlog=('Damaged Reaction: ' + str(GameData.triggeredunit.name) + ' dealt 5 damage to '+gameunits.OpponentUnitList[-1].name)
-
 
 def get_unit_positions():
     for x in gameunits.FriendlyUnitList:
@@ -230,7 +220,9 @@ def tree_building_rects_and_images():
 
 
 def continueCombat(): # high level combat flow
-
+    # print(GameData.triggersactive)
+    # print(Fighter.FriendlyAbilitiesTriggeredList)
+    # print(Fighter.OpponentAbilitiesTriggeredList)
     check_triggers()
     reactions()
     #print(GameData.triggersactive)
