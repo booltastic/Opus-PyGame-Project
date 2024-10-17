@@ -139,7 +139,7 @@ def get_mouse_status():
     mouse_pos = pygame.mouse.get_pos()
     return mouse_clicked, mouse_pos
 
-def darken_on_click( rect, icon, darkenedicon):
+def darken_on_click(rect, icon, darkenedicon):
     mouse_clicked,mouse_pos=get_mouse_status()
     if mouse_clicked and rect.collidepoint(mouse_pos):
         screen.blit(darkenedicon, rect)

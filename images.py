@@ -1,19 +1,50 @@
 from config import *
+import os
 
 def load_img(imagefile, size):
     imageicon = pygame.image.load('Assets/'+imagefile)
     imageicon = pygame.transform.scale(imageicon, (size))
     return imageicon
 
-introimage = pygame.image.load('Assets/'+'IntroScreen.jpeg')
-quainttownimage = pygame.image.load('Assets/'+'QuaintTownSquare.png')
-level1minesceneimage = pygame.image.load('Assets/'+'RockyMineLevel1.png')
-minersguildimage = pygame.image.load('Assets/'+'MinersGuildInterior.png')
-loadgamescreenimage = pygame.image.load('Assets/'+'LoadGameScreen.jpg')
-backpackscreenimage = pygame.image.load('Assets/'+'Backpack_Background_Image.jpg')
-stats_page_image = pygame.image.load('Assets/'+'Statistic_Background_Image.jpg')
-treebuildingscene = pygame.image.load('Assets/'+'TreeBuilding.png')
-roboworkshopbackground = pygame.image.load('Assets/'+'RoboWorkshop.jpg')
+class Sprite:
+    def __init__(self, sprite_dir):
+        self.dir_frame_list = os.listdir(sprite_dir)
+        self.animation_len = len(self.dir_frame_list)
+        self.is_animating = False
+        self.current_frame = 0
+        self.img_frame_list = []
+        for frame in self.dir_frame_list:
+            self.img_frame_list.append(pygame.image.load(os.path.join(sprite_dir,frame)))
+
+    def stop_animate_Sprite(self):
+        if self.is_animating:
+            self.is_animating = False
+
+    def start_animate_Sprite(self):
+        if self.is_animating == False:
+            self.is_animating = True
+
+    def animate_Sprite(self):
+        if self.is_animating and self.current_frame<self.animation_len:
+            self.sprite_animation = self.img_frame_list[int(self.current_frame)]
+            print(self.sprite_animation)
+            self.current_frame+=0.1
+        else:
+            self.current_frame=0
+            self.sprite_animation = self.img_frame_list[0]
+        return self.sprite_animation
+
+robo_boss_sprite = Sprite(r'Assets\RoboDance Animation')
+
+introimage = pygame.image.load(r'Assets/'+'IntroScreen.jpeg')
+quainttownimage = pygame.image.load(r'Assets/'+'QuaintTownSquare.png')
+level1minesceneimage = pygame.image.load(r'Assets/'+'RockyMineLevel1.png')
+minersguildimage = pygame.image.load(r'Assets/'+'MinersGuildInterior.png')
+loadgamescreenimage = pygame.image.load(r'Assets/'+'LoadGameScreen.jpg')
+backpackscreenimage = pygame.image.load(r'Assets/'+'Backpack_Background_Image.jpg')
+stats_page_image = pygame.image.load(r'Assets/'+'Statistic_Background_Image.jpg')
+treebuildingscene = pygame.image.load(r'Assets/'+'TreeBuilding.png')
+roboworkshopbackground = pygame.image.load(r'Assets/'+'RoboWorkshop.jpg')
 
 towniconimage = load_img('TownIcon.png', small_icon)
 treebuildingicon = load_img('TreeBuilding.png', medium_icon)

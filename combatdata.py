@@ -54,10 +54,11 @@ class Fighter:
         self.dealsdamage = False
         self.dieability = False
 
+        # Unit Images
         if self.unit == 'basicgob':
             self.rect = SmallBasicDemon_icon
         if self.unit == 'roboboss':
-            self.rect = robot_boss_image
+            self.rect = robo_boss_sprite.animate_Sprite() #sets is_animating to true
         if self.unit == 'robominer':
             self.rect = ShopRobotMiner_icon
 
@@ -99,7 +100,6 @@ def check_triggers():
             #Fighter.OpponentAbilitiesTriggeredList.append(x)
 
 def reactions(): #Executes any triggers that are activated
-    print(Fighter.FriendlyAbilitiesTriggeredList)
     if GameData.triggersactive:
         #print('trigs active in reactions: '+ str(Fighter.FriendlyAbilitiesTriggeredList))
         if GameData.interactionqueue < len(Fighter.FriendlyAbilitiesTriggeredList):  # one ability in queue, if int 0 <= 1, add 1, fix number
@@ -146,6 +146,13 @@ fightActive = False
 
 def get_unit_positions():
     for x in gameunits.FriendlyUnitList:
+        # Unit Images
+        if x.unit == 'basicgob':
+            x.rect = SmallBasicDemon_icon
+        if x.unit == 'roboboss':
+            x.rect = robo_boss_sprite.animate_Sprite() #sets is_animating to true
+        if x.unit == 'robominer':
+            x.rect = ShopRobotMiner_icon
         x.positionint = gameunits.FriendlyUnitList.index(x)
         if x.positionint==0:
             x.position = fposition1
@@ -172,6 +179,7 @@ def get_unit_positions():
 
 
 def draw_battle_positions(rects):
+    print('draw bat pos')
     get_unit_positions()
     for x in gameunits.FriendlyUnitList:
         if x.position is not None:
@@ -196,12 +204,16 @@ def draw_battle_positions(rects):
     return rects
 
 
+
 def tree_building_rects_and_images():
     draw_background(treebuildingscene)
     rects = {}
     rects['fightbutton'] = draw_fight_button()
     rects['backbutton'] = draw_back_button()
+
+    robo_boss_sprite.start_animate_Sprite()
     draw_battle_positions(rects)
+
     if GameData.introfighttext == 0:
         get_text_box('Hey! I said dont come here! Stand back kid, Ill handle this!', 40,
                      (WINDOW_WIDTH / 2, WINDOW_HEIGHT * 0.35),
